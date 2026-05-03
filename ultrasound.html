@@ -250,12 +250,51 @@
     0%,100%{opacity:.25;box-shadow:0 0 4px 1px rgba(255,255,255,.4)}
     50%{opacity:1;box-shadow:0 0 20px 6px rgba(255,255,255,.9)}
   }
+  /* ---- Mobile & horizontal scroll fixes ---- */
+  html{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  body{overflow-x:auto;min-width:320px}
+
+  /* Tables: horizontal scroll on small screens */
+  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  td,th{white-space:normal;min-width:80px}
+
+  /* SVG / wavebox containers */
+  .wavebox,.doppler,.lus-screen,.img-card{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* Canvas: scale to container */
+  #dopplerCanvas{width:100%!important;height:auto!important;min-height:180px;display:block}
+
   @media(max-width:900px){
     .card,.wide,.half,.third{grid-column:1/-1}
     .hero{min-height:60vh;padding:60px 18px 40px}
     section{padding:50px 16px}
     .formula{font-size:18px;padding:14px}
     .lus-screen{height:280px}
+    nav a{padding:6px 10px;font-size:12.5px}
+    h2{font-size:clamp(22px,5vw,36px)}
+    .wavebox,.doppler{height:auto;min-height:180px}
+    .wavebox svg,.doppler svg{width:100%;height:auto}
+  }
+
+  @media(max-width:480px){
+    .card,.wide,.half,.third{grid-column:1/-1}
+    .hero{min-height:50vh;padding:48px 12px 30px}
+    section{padding:36px 12px}
+    .formula{font-size:15px;padding:10px}
+    nav{gap:5px;padding:8px 10px}
+    nav a{padding:5px 9px;font-size:11.5px}
+    h2{font-size:clamp(20px,6vw,30px);letter-spacing:-.5px}
+    h3{font-size:16px}
+    p,li{font-size:13.5px}
+    .lus-screen{height:220px}
+    .badge{font-size:11px;padding:6px 10px}
+    .chip{font-size:11px;padding:3px 8px}
+    .hero h1{font-size:clamp(28px,9vw,54px);letter-spacing:-1px}
+    .hero .sub{font-size:14px}
+    .wavebox{height:auto;min-height:160px}
+    .img-card img{height:180px}
+    .btns{flex-wrap:wrap}
+    .btn{font-size:12px;padding:7px 10px}
   }
 
   /* Subtle entry animation */
