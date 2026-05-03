@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Central Venous Pressure — Advanced ICU Graphics</title>
+<style>
+  :root{
+    --bg:#07111f; --bg2:#0b1c32; --panel:rgba(255,255,255,.075); --panel2:rgba(255,255,255,.11);
+    --line:rgba(255,255,255,.16); --text:#eef7ff; --muted:#9fb4c8; --cyan:#55e6ff; --blue:#7aa7ff;
+    --green:#57f0a8; --yellow:#ffd166; --orange:#ff9f45; --red:#ff5d73; --purple:#c084fc;
+    --shadow: 0 25px 80px rgba(0,0,0,.35); --radius:28px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:var(--text); background:var(--bg); overflow-x:hidden;}
+  body:before{content:""; position:fixed; inset:-20%; z-index:-3; background:
+    radial-gradient(circle at 18% 12%, rgba(85,230,255,.26), transparent 34%),
+    radial-gradient(circle at 78% 4%, rgba(192,132,252,.22), transparent 29%),
+    radial-gradient(circle at 80% 72%, rgba(87,240,168,.18), transparent 34%),
+    linear-gradient(135deg, #07111f, #10213a 48%, #07111f); filter:saturate(1.1);}
+  body:after{content:""; position:fixed; inset:0; z-index:-2; background-image:linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size:42px 42px; mask-image:linear-gradient(to bottom, rgba(0,0,0,.7), rgba(0,0,0,.05));}
+  a{color:var(--cyan)}
+  .wrap{width:min(1220px, calc(100% - 32px)); margin:0 auto;}
+  .hero{padding:52px 0 28px; position:relative;}
+  .heroGrid{display:grid; grid-template-columns:1.06fr .94fr; gap:24px; align-items:stretch;}
+  .glass{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter: blur(18px);}
+  .heroMain{padding:34px; overflow:hidden; position:relative; min-height:440px;}
+  .eyebrow{display:inline-flex; align-items:center; gap:10px; color:#b9ecff; border:1px solid rgba(85,230,255,.28); background:rgba(85,230,255,.08); padding:8px 12px; border-radius:999px; font-size:13px; letter-spacing:.4px; text-transform:uppercase; font-weight:800;}
+  .pulseDot{width:9px;height:9px;border-radius:50%;background:var(--green); box-shadow:0 0 0 0 rgba(87,240,168,.7); animation:pulse 1.7s infinite;}
+  @keyframes pulse{70%{box-shadow:0 0 0 14px rgba(87,240,168,0)}100%{box-shadow:0 0 0 0 rgba(87,240,168,0)}}
+  h1{font-size:clamp(36px, 5.3vw, 78px); line-height:.92; margin:24px 0 18px; letter-spacing:-3px;}
+  .grad{background:linear-gradient(90deg, #fff, #55e6ff, #57f0a8); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .lead{font-size:clamp(16px, 1.65vw, 22px); line-height:1.55; color:#c6d6e5; max-width:880px; margin:0 0 24px;}
+  .keyCards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:26px;}
+  .metric{padding:16px; border-radius:22px; border:1px solid rgba(255,255,255,.13); background:linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.045));}
+  .metric .num{font-size:30px; font-weight:900; letter-spacing:-1px; margin-bottom:4px}.metric .lab{color:var(--muted); font-size:13px; line-height:1.35}
+  .heroViz{padding:18px; display:flex; flex-direction:column; gap:14px; min-height:440px;}
+  .miniMonitor{position:relative; flex:1; min-height:265px; overflow:hidden; border-radius:24px; background:linear-gradient(180deg, rgba(0,0,0,.26), rgba(0,0,0,.12)); border:1px solid rgba(255,255,255,.12);}
+  .monitorTop{display:flex; justify-content:space-between; align-items:center; padding:14px 16px; color:#dbeafe; font-weight:800; font-size:14px; border-bottom:1px solid rgba(255,255,255,.08)}
+  .chip{font-size:12px; color:#07111f; background:var(--green); border-radius:999px; padding:5px 9px; font-weight:900;}
+  svg{max-width:100%; height:auto; display:block;}
+  .wavePath{stroke-dasharray:950; stroke-dashoffset:950; animation:draw 3.8s ease-in-out infinite;}
+  @keyframes draw{0%{stroke-dashoffset:950;opacity:.45}28%,82%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:-950;opacity:.3}}
+  .scan{position:absolute; inset:47px 0 0; background:linear-gradient(90deg, transparent, rgba(85,230,255,.13), transparent); width:28%; transform:translateX(-100%); animation:scan 3.6s linear infinite;}
+  @keyframes scan{to{transform:translateX(460%)}}
+  .btns{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}.btn,.tab{border:1px solid rgba(255,255,255,.17); background:rgba(255,255,255,.08); color:var(--text); border-radius:999px; padding:10px 13px; font-weight:800; cursor:pointer; transition:.2s ease;}.btn:hover,.tab:hover{transform:translateY(-1px); background:rgba(255,255,255,.13)}.btn.active,.tab.active{background:linear-gradient(90deg, rgba(85,230,255,.28), rgba(87,240,168,.23)); border-color:rgba(85,230,255,.46)}
+  nav{position:sticky; top:0; z-index:10; background:rgba(7,17,31,.72); backdrop-filter:blur(18px); border-bottom:1px solid rgba(255,255,255,.09);}
+  .navIn{display:flex; gap:10px; align-items:center; overflow-x:auto; padding:10px 0;}.navIn a{white-space:nowrap; text-decoration:none; color:#c7d7e8; font-weight:800; font-size:13px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); padding:8px 11px; border-radius:999px}.navIn a:hover{color:#fff; border-color:rgba(85,230,255,.45)}
+  section{padding:22px 0}.sectionTitle{display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin:18px 0}.sectionTitle h2{font-size:clamp(25px, 3.4vw, 45px); letter-spacing:-1.6px; margin:0}.sectionTitle p{max-width:650px; color:var(--muted); line-height:1.55; margin:0}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px}.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}.grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}.card{padding:22px; border-radius:var(--radius); background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow); backdrop-filter:blur(16px);}.card h3{margin:0 0 11px; font-size:21px; letter-spacing:-.4px}.card p,.card li{color:#c5d5e4; line-height:1.55}.card ul{padding-left:20px; margin:10px 0 0}.small{font-size:13px; color:var(--muted)}
+  .formula{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight:900; letter-spacing:-.4px; background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.11); border-radius:18px; padding:14px; color:#eaf7ff; margin:12px 0;}
+  .callout{border:1px solid rgba(255,209,102,.28); background:linear-gradient(180deg, rgba(255,209,102,.13), rgba(255,255,255,.045)); padding:16px; border-radius:22px; color:#ffe8a7}.danger{border-color:rgba(255,93,115,.3); background:linear-gradient(180deg, rgba(255,93,115,.13), rgba(255,255,255,.045)); color:#ffd4da}.ok{border-color:rgba(87,240,168,.3); background:linear-gradient(180deg, rgba(87,240,168,.12), rgba(255,255,255,.045)); color:#dcffec}
+  .diagramFrame{border-radius:24px; background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.10); padding:14px; overflow:hidden; position:relative; min-height:260px;}.legend{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}.legend span{font-size:12px; font-weight:800; color:#c9d9e7; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.055); border-radius:999px; padding:6px 9px}.dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:-1px}.cyan{background:var(--cyan)}.green{background:var(--green)}.yellow{background:var(--yellow)}.red{background:var(--red)}.purple{background:var(--purple)}
+  .tabPanel{display:none}.tabPanel.active{display:block; animation:fade .35s ease}@keyframes fade{from{opacity:.35; transform:translateY(4px)}to{opacity:1; transform:translateY(0)}}
+  .rangeBox{display:grid; grid-template-columns:1fr 260px; gap:18px; align-items:center}.rangeBox input[type=range]{width:100%; accent-color:#55e6ff}.gauge{width:230px; height:230px; border-radius:50%; margin:auto; position:relative; background:conic-gradient(var(--green) 0 24%, var(--yellow) 24% 48%, var(--orange) 48% 70%, var(--red) 70% 100%); box-shadow:inset 0 0 0 18px rgba(255,255,255,.06), 0 22px 70px rgba(0,0,0,.34)}.gauge:before{content:""; position:absolute; inset:28px; border-radius:50%; background:#0b1c32; border:1px solid rgba(255,255,255,.15)}.needle{position:absolute; width:4px; height:86px; background:#fff; left:calc(50% - 2px); top:28px; transform-origin:50% 86px; border-radius:999px; box-shadow:0 0 20px rgba(255,255,255,.65); transition:.35s ease}.gVal{position:absolute; inset:0; display:grid; place-items:center; font-weight:950; font-size:39px; letter-spacing:-1px}.gVal small{display:block; font-size:13px; color:var(--muted); text-align:center; margin-top:5px}.gCenter{text-align:center; z-index:2; position:relative;}
+  .tiles{display:grid; grid-template-columns:repeat(2,1fr); gap:12px}.tile{padding:15px; border-radius:20px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.055)}.tile b{display:block; margin-bottom:5px; color:#fff}.tile span{font-size:13px; color:#bfd0df; line-height:1.45}
+  table{width:100%; border-collapse:collapse; overflow:hidden; border-radius:18px; font-size:14px}th,td{padding:12px; text-align:left; border-bottom:1px solid rgba(255,255,255,.10); vertical-align:top}th{color:#fff; background:rgba(255,255,255,.08)}td{color:#c9d9e7}tr:hover td{background:rgba(255,255,255,.035)}
+  .footer{padding:36px 0 58px; color:#9fb4c8}.refs{font-size:13px; line-height:1.6}.refs li{margin-bottom:8px}.badge{display:inline-block; padding:6px 9px; border-radius:999px; font-size:12px; font-weight:900; background:rgba(85,230,255,.12); color:#b9f4ff; border:1px solid rgba(85,230,255,.28)}
+  .float{animation:float 6s ease-in-out infinite}@keyframes float{50%{transform:translateY(-8px)}}.glowText{text-shadow:0 0 28px rgba(85,230,255,.38)}
+  @media(max-width:900px){.heroGrid,.grid2,.grid3,.rangeBox{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}.keyCards{grid-template-columns:1fr}.heroMain{padding:24px}.heroViz{min-height:auto}.sectionTitle{display:block}.sectionTitle p{margin-top:8px}.tiles{grid-template-columns:1fr}.gauge{width:205px; height:205px}}
+  @media(max-width:560px){.wrap{width:min(100% - 20px, 1220px)}.card{padding:17px}.grid4{grid-template-columns:1fr}h1{letter-spacing:-1.7px}.navIn a{font-size:12px}.hero{padding-top:28px}}
+  @media print{body{background:#fff;color:#000}body:before,body:after,nav,.scan,.btns{display:none}.glass,.card,.diagramFrame{box-shadow:none;background:#fff;color:#000;border:1px solid #aaa}.card p,.card li,.small,td{color:#111}.lead,.sectionTitle p{color:#111}.heroGrid,.grid2,.grid3,.grid4,.rangeBox{display:block}.wrap{width:100%}}
+</style>
+</head>
+<body>
+  <nav>
+    <div class="wrap navIn">
+      <a href="#core">Core concept</a><a href="#measure">Measurement</a><a href="#waveform">Waveform</a><a href="#respiration">Respiration</a><a href="#interpret">Interpret</a><a href="#pitfalls">Pitfalls</a><a href="#quick">Quick ICU use</a>
+    </div>
+  </nav>
+
+  <header class="hero wrap">
+    <div class="heroGrid">
+      <div class="heroMain glass">
+        <span class="eyebrow"><span class="pulseDot"></span> ICU hemodynamic monitor</span>
+        <h1>Central Venous Pressure <span class="grad">explained visually</span></h1>
+        <p class="lead">CVP is best understood as <b>right atrial pressure seen through a central venous catheter</b>. It is useful for right-heart loading, venous congestion, waveform diagnosis and line troubleshooting — but it is a weak standalone test of fluid responsiveness.</p>
+        <div class="keyCards">
+          <div class="metric"><div class="num">CVP ≈ RAP</div><div class="lab">Pressure near SVC/right atrium reflects right-sided filling pressure.</div></div>
+          <div class="metric"><div class="num">End-exp</div><div class="lab">Read at end-expiration; zero transducer at the phlebostatic axis.</div></div>
+          <div class="metric"><div class="num">2–8</div><div class="lab">Typical mmHg range in a spontaneously breathing, non-ventilated supine adult; interpret with context.</div></div>
+        </div>
+        <div class="callout" style="margin-top:18px"><b>Memory hook:</b> CVP is not “body fluid volume”. It is the pressure opposing venous return and filling the right heart.</div>
+      </div>
+      <div class="heroViz glass">
+        <div class="miniMonitor">
+          <div class="monitorTop"><span>CVP waveform</span><span class="chip">LIVE</span></div>
+          <div class="scan"></div>
+          <svg viewBox="0 0 620 280" role="img" aria-label="Animated CVP waveform monitor">
+            <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#55e6ff"/><stop offset="1" stop-color="#57f0a8"/></linearGradient><filter id="softGlow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <g opacity=".23" stroke="#fff" stroke-width="1">
+              <path d="M50 40H590M50 90H590M50 140H590M50 190H590M50 240H590"/><path d="M80 25V252M160 25V252M240 25V252M320 25V252M400 25V252M480 25V252M560 25V252"/>
+            </g>
+            <text x="32" y="48" fill="#9fb4c8" font-size="14">12</text><text x="37" y="145" fill="#9fb4c8" font-size="14">6</text><text x="42" y="244" fill="#9fb4c8" font-size="14">0</text>
+            <path class="wavePath" d="M52 170 C80 170,94 166,104 137 C113 111,137 116,143 151 C148 178,171 178,190 159 C212 135,225 116,238 126 C248 134,247 158,272 160 C296 162,305 159,316 147 C334 127,360 135,370 157 C381 182,409 178,430 158 C454 133,462 112,476 126 C489 142,504 154,530 151 C554 148,568 157,590 170" fill="none" stroke="url(#g1)" stroke-width="5" stroke-linecap="round" filter="url(#softGlow)"/>
+            <g fill="#fff" font-weight="800" font-size="16"><text x="99" y="102">a</text><text x="232" y="106">c</text><text x="293" y="190">x</text><text x="470" y="105">v</text><text x="525" y="190">y</text></g>
+            <text x="420" y="246" fill="#dbeafe" font-weight="800" font-size="15">Mean CVP ≈ 8 mmHg</text>
+          </svg>
+        </div>
+        <div class="tiles">
+          <div class="tile"><b>Value</b><span>Mean pressure number: venous return / right-heart / thoracic pressure context.</span></div>
+          <div class="tile"><b>Shape</b><span>Waveform morphology: rhythm, tricuspid valve, pericardium, RV function.</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="core">
+      <div class="sectionTitle"><h2>1. Core concept</h2><p>CVP is a pressure signal recorded from the thoracic vena cava near the right atrium. The same number can mean different physiology depending on venous tone, RV function, PEEP, intrathoracic pressure, abdominal pressure and catheter setup.</p></div>
+      <div class="grid3">
+        <div class="card">
+          <h3>What it directly measures</h3>
+          <p><b>Central venous pressure</b> is the pressure in the SVC/right atrial region. Clinically, it is treated as an approximation of <b>right atrial pressure</b>.</p>
+          <div class="formula">CVP ≈ RAP</div>
+          <p class="small">Therefore CVP is a pressure measurement at the downstream end of the systemic venous circuit, not a direct blood-volume meter.</p>
+        </div>
+        <div class="card">
+          <h3>Venous return frame</h3>
+          <p>Venous return depends on the pressure gradient from the systemic venous reservoir to the right atrium.</p>
+          <div class="formula">VR = (MSFP − RAP) / RVR</div>
+          <p class="small">A higher RAP/CVP can reduce the gradient for venous return unless mean systemic filling pressure also rises.</p>
+        </div>
+        <div class="card">
+          <h3>Why one number misleads</h3>
+          <p>A CVP of 14 mmHg may be fluid overload, RV failure, high PEEP, tamponade physiology, pulmonary hypertension or raised intra-abdominal pressure.</p>
+          <div class="danger"><b>Never interpret in isolation.</b> Pair it with waveform, echo, lactate/CRT, urine output, lung ultrasound and dynamic fluid responsiveness.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="measure">
+      <div class="sectionTitle"><h2>2. How to measure CVP correctly</h2><p>The measurement has three physics steps: transduce the pressure, level the transducer to the right atrium, then zero to atmospheric pressure. A good waveform matters as much as the displayed mean number.</p></div>
+      <div class="grid2">
+        <div class="card">
+          <h3>Transducer setup diagram</h3>
+          <div class="diagramFrame">
+            <svg viewBox="0 0 760 430" role="img" aria-label="CVP measurement setup with central venous catheter and transducer">
+              <defs>
+                <linearGradient id="tube" x1="0" x2="1"><stop stop-color="#55e6ff"/><stop offset="1" stop-color="#7aa7ff"/></linearGradient>
+                <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              </defs>
+              <rect x="10" y="10" width="740" height="410" rx="26" fill="rgba(255,255,255,.03)"/>
+              <path d="M145 310 C110 260 98 202 125 148 C150 98 205 78 270 95 C323 109 364 142 385 198 C405 252 390 303 348 333 C289 376 197 370 145 310Z" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.25)"/>
+              <path d="M248 132 C205 135 174 171 172 216 C170 259 199 292 239 299 C277 306 313 287 330 251 C349 209 330 158 292 140 C280 134 265 131 248 132Z" fill="rgba(255,93,115,.18)" stroke="rgba(255,255,255,.18)"/>
+              <path d="M247 159 C229 178 230 217 249 238 C269 261 307 258 321 232 C333 209 324 179 302 164 C284 153 263 151 247 159Z" fill="rgba(85,230,255,.18)" stroke="rgba(85,230,255,.45)"/>
+              <text x="230" y="126" fill="#fff" font-size="16" font-weight="900">Right atrium</text>
+              <line x1="45" y1="218" x2="710" y2="218" stroke="#ffd166" stroke-width="3" stroke-dasharray="10 10"/>
+              <text x="52" y="207" fill="#ffe49a" font-size="15" font-weight="900">Phlebostatic axis: RA level</text>
+              <path d="M138 70 C192 95 218 127 236 175 C247 203 259 215 287 218" fill="none" stroke="url(#tube)" stroke-width="8" stroke-linecap="round" filter="url(#glow)"/>
+              <circle cx="287" cy="218" r="7" fill="#55e6ff"/>
+              <text x="70" y="62" fill="#b9f4ff" font-size="15" font-weight="900">CVC tip in SVC/RA zone</text>
+              <path d="M287 218 C365 218 412 218 472 218" stroke="url(#tube)" stroke-width="7" fill="none"/>
+              <rect x="472" y="178" width="112" height="80" rx="18" fill="rgba(85,230,255,.12)" stroke="rgba(85,230,255,.55)"/>
+              <text x="491" y="211" fill="#fff" font-size="17" font-weight="900">Zeroed</text><text x="490" y="233" fill="#b9f4ff" font-size="13">to air</text>
+              <path d="M584 218 C625 198 650 180 687 154" stroke="#57f0a8" stroke-width="6" fill="none" stroke-linecap="round"/>
+              <rect x="640" y="84" width="88" height="70" rx="14" fill="rgba(87,240,168,.13)" stroke="rgba(87,240,168,.52)"/>
+              <text x="656" y="113" fill="#fff" font-size="14" font-weight="900">Monitor</text><text x="660" y="134" fill="#c9ffe3" font-size="13">Mean + wave</text>
+              <g transform="translate(626,138)"><path d="M0 0 C13 0 18 -22 27 -13 C39 0 42 -2 54 -1" stroke="#57f0a8" stroke-width="3" fill="none"/></g>
+              <g fill="#fff" font-size="14" font-weight="800"><text x="438" y="290">No fluid running</text><text x="438" y="315">End-expiration</text><text x="438" y="340">Short, stiff tubing</text></g>
+            </svg>
+          </div>
+          <div class="legend"><span><span class="dot cyan"></span>pressure tubing</span><span><span class="dot yellow"></span>RA zero level</span><span><span class="dot green"></span>monitor trace</span></div>
+        </div>
+        <div class="card">
+          <h3>Checklist before trusting the number</h3>
+          <table>
+            <thead><tr><th>Step</th><th>What to check</th><th>Error if wrong</th></tr></thead>
+            <tbody>
+              <tr><td>Level</td><td>Transducer at right atrial level / phlebostatic axis.</td><td>Too high reads falsely low; too low reads falsely high.</td></tr>
+              <tr><td>Zero</td><td>Open transducer to air; zero to atmospheric pressure.</td><td>Baseline offset: all readings shifted.</td></tr>
+              <tr><td>Timing</td><td>Read at end-expiration.</td><td>Respiratory swings contaminate the value.</td></tr>
+              <tr><td>Lumen</td><td>No fluid/vasopressor infusion through the measuring lumen.</td><td>Infusion pressure artefact.</td></tr>
+              <tr><td>Waveform</td><td>Clear a/c/v waves and x/y descents; flush/damping test acceptable.</td><td>Overdamping/underdamping or catheter whip.</td></tr>
+            </tbody>
+          </table>
+          <div class="ok" style="margin-top:14px"><b>Practical ICU phrase:</b> “CVP is 10 mmHg, measured end-expiration, waveform good, transducer levelled at phlebostatic axis.”</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="waveform">
+      <div class="sectionTitle"><h2>3. CVP waveform anatomy</h2><p>The waveform is generated by right atrial pressure changes during the cardiac cycle. The morphology often gives more diagnostic value than the mean CVP number.</p></div>
+      <div class="card">
+        <div class="btns" role="tablist" aria-label="Waveform tabs">
+          <button class="tab active" data-tab="normal">Normal</button>
+          <button class="tab" data-tab="af">Atrial fibrillation</button>
+          <button class="tab" data-tab="tr">Tricuspid regurgitation</button>
+          <button class="tab" data-tab="tamponade">Tamponade / constriction clues</button>
+        </div>
+        <div class="grid2" style="margin-top:14px; align-items:center">
+          <div class="diagramFrame">
+            <svg id="waveSvg" viewBox="0 0 860 410" role="img" aria-label="Interactive central venous pressure waveform">
+              <defs><linearGradient id="waveGrad" x1="0" x2="1"><stop stop-color="#55e6ff"/><stop offset=".5" stop-color="#7aa7ff"/><stop offset="1" stop-color="#57f0a8"/></linearGradient><filter id="traceGlow"><feGaussianBlur stdDeviation="3.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+              <g opacity=".20" stroke="#fff" stroke-width="1"><path d="M70 55H820M70 115H820M70 175H820M70 235H820M70 295H820M70 355H820"/><path d="M110 40V360M190 40V360M270 40V360M350 40V360M430 40V360M510 40V360M590 40V360M670 40V360M750 40V360"/></g>
+              <text x="25" y="62" fill="#a9bbcc" font-size="14">20</text><text x="33" y="182" fill="#a9bbcc" font-size="14">10</text><text x="40" y="358" fill="#a9bbcc" font-size="14">0</text>
+              <path id="ecgPath" d="M75 365 H146 l10 -22 l12 44 l10 -22 H272 H334 l9 -22 l12 44 l10 -22 H482 H544 l9 -22 l12 44 l10 -22 H724 H815" fill="none" stroke="rgba(255,209,102,.85)" stroke-width="3"/>
+              <text x="76" y="390" fill="#ffd166" font-size="14" font-weight="900">ECG reference</text>
+              <path id="mainWave" d="M75 250 C110 250 125 245 138 205 C151 162 187 172 198 228 C206 268 245 270 275 235 C315 188 337 168 358 188 C376 204 374 237 415 240 C454 242 478 232 495 205 C520 165 560 178 578 230 C594 276 642 270 680 230 C720 190 735 162 760 190 C785 218 790 237 820 244" fill="none" stroke="url(#waveGrad)" stroke-width="6" stroke-linecap="round" filter="url(#traceGlow)"/>
+              <g id="labels" fill="#fff" font-weight="900" font-size="18"><text x="135" y="145">a</text><text x="350" y="155">c</text><text x="430" y="278">x</text><text x="574" y="157">v</text><text x="672" y="278">y</text></g>
+              <circle id="runner" cx="75" cy="250" r="8" fill="#fff" filter="url(#traceGlow)"><animateMotion dur="5s" repeatCount="indefinite" rotate="auto" path="M75 250 C110 250 125 245 138 205 C151 162 187 172 198 228 C206 268 245 270 275 235 C315 188 337 168 358 188 C376 204 374 237 415 240 C454 242 478 232 495 205 C520 165 560 178 578 230 C594 276 642 270 680 230 C720 190 735 162 760 190 C785 218 790 237 820 244" /></circle>
+            </svg>
+          </div>
+          <div>
+            <div id="normal" class="tabPanel active">
+              <h3>Normal waveform sequence</h3>
+              <ul>
+                <li><b>a wave:</b> right atrial contraction; usually follows P wave.</li>
+                <li><b>c wave:</b> tricuspid valve bulges into RA during early RV systole.</li>
+                <li><b>x descent:</b> atrial relaxation + downward tricuspid annular motion.</li>
+                <li><b>v wave:</b> passive RA filling against a closed tricuspid valve.</li>
+                <li><b>y descent:</b> tricuspid valve opens; blood empties into RV.</li>
+              </ul>
+            </div>
+            <div id="af" class="tabPanel"><h3>Atrial fibrillation</h3><p>The organised <b>a wave disappears</b> because there is no coordinated atrial contraction. The baseline often looks irregular; mean CVP can still be measured if the waveform and setup are otherwise valid.</p><div class="callout">Look for absent a waves, irregular ECG and beat-to-beat variability in ventricular filling.</div></div>
+            <div id="tr" class="tabPanel"><h3>Tricuspid regurgitation</h3><p>Severe TR can produce a large systolic <b>v wave / c-v wave</b>, because RV systolic pressure is transmitted backward into the RA. The CVP trace may become ventricularized.</p><div class="danger">A high CVP with giant v waves is congestion/TR physiology until proven otherwise — do not call it “needs fluid”.</div></div>
+            <div id="tamponade" class="tabPanel"><h3>Tamponade / constriction clues</h3><p>Tamponade classically shows a preserved/prominent x descent with a blunted or absent y descent. Constrictive pericarditis typically shows prominent x and y descents, with a steep, rapid y descent (M- or W-shape; Friedreich's sign).</p><div class="callout">Use echo. CVP waveform is supportive, not definitive.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="respiration">
+      <div class="sectionTitle"><h2>4. Respiration and ventilation effects</h2><p>CVP is an intrathoracic pressure measurement. Spontaneous breathing makes pleural pressure more negative during inspiration; positive-pressure ventilation pushes pleural/alveolar pressure positive during inspiration. End-expiration is the common reference point.</p></div>
+      <div class="grid2">
+        <div class="card">
+          <h3>Spontaneous breathing</h3>
+          <div class="diagramFrame">
+            <svg viewBox="0 0 720 300" role="img" aria-label="Spontaneous breathing effect on CVP">
+              <defs><linearGradient id="spont" x1="0" x2="1"><stop stop-color="#57f0a8"/><stop offset="1" stop-color="#55e6ff"/></linearGradient></defs>
+              <g opacity=".20" stroke="#fff"><path d="M45 60H680M45 130H680M45 200H680M45 270H680"/></g>
+              <text x="48" y="36" fill="#fff" font-weight="900">Inspiration ↓ pleural pressure → CVP tends to fall</text>
+              <path d="M58 135 C105 132 130 226 176 224 C228 222 246 76 303 78 C355 80 380 226 430 224 C486 222 502 78 558 80 C607 82 628 176 674 174" fill="none" stroke="url(#spont)" stroke-width="6" stroke-linecap="round"/>
+              <path d="M58 229 H674" stroke="#ffd166" stroke-width="2" stroke-dasharray="8 8"/>
+              <text x="490" y="251" fill="#ffe49a" font-size="14" font-weight="900">End-expiration reading zone</text>
+              <g fill="#cde5f7" font-size="13" font-weight="800"><text x="94" y="248">insp</text><text x="283" y="105">exp</text><text x="386" y="248">insp</text><text x="552" y="105">exp</text></g>
+            </svg>
+          </div>
+          <p>During spontaneous inspiration, intrathoracic pressure becomes more negative, venous return usually increases, and the measured CVP often dips.</p>
+        </div>
+        <div class="card">
+          <h3>Mechanical ventilation</h3>
+          <div class="diagramFrame">
+            <svg viewBox="0 0 720 300" role="img" aria-label="Positive pressure ventilation effect on CVP">
+              <defs><linearGradient id="mech" x1="0" x2="1"><stop stop-color="#ff9f45"/><stop offset="1" stop-color="#ff5d73"/></linearGradient></defs>
+              <g opacity=".20" stroke="#fff"><path d="M45 60H680M45 130H680M45 200H680M45 270H680"/></g>
+              <text x="48" y="36" fill="#fff" font-weight="900">Ventilator inspiration ↑ thoracic pressure → CVP tends to rise</text>
+              <path d="M58 218 C105 220 125 76 176 78 C226 80 251 224 303 222 C355 220 376 76 430 78 C484 80 505 224 558 222 C608 220 630 130 674 132" fill="none" stroke="url(#mech)" stroke-width="6" stroke-linecap="round"/>
+              <path d="M58 229 H674" stroke="#ffd166" stroke-width="2" stroke-dasharray="8 8"/>
+              <text x="490" y="251" fill="#ffe49a" font-size="14" font-weight="900">End-expiration reading zone</text>
+              <g fill="#cde5f7" font-size="13" font-weight="800"><text x="98" y="105">insp</text><text x="275" y="248">exp</text><text x="395" y="105">insp</text><text x="545" y="248">exp</text></g>
+            </svg>
+          </div>
+          <p>Positive pressure and PEEP can elevate measured CVP without true intravascular volume expansion. Interpret in relation to PEEP, lung compliance and RV afterload.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="interpret">
+      <div class="sectionTitle"><h2>5. Interactive interpretation</h2><p>Move the slider to see how the displayed number changes the differential. This is a teaching guide; the patient’s trend and phenotype matter more than a single value.</p></div>
+      <div class="card">
+        <div class="rangeBox">
+          <div>
+            <label for="cvpRange" class="badge">Set CVP value</label>
+            <input id="cvpRange" type="range" min="0" max="25" step="1" value="8" style="margin:22px 0 8px" />
+            <div class="tiles">
+              <div class="tile"><b id="zoneTitle">Borderline / contextual</b><span id="zoneText">Interpret against ventilation, waveform, RV function, perfusion and trends.</span></div>
+              <div class="tile"><b>cmH₂O conversion</b><span id="cmText">8 mmHg ≈ 10.9 cmH₂O</span></div>
+              <div class="tile"><b>Fluid decision</b><span>Do not give fluid based on CVP alone. Use dynamic response: PLR/mini-bolus with stroke volume, PPV/SVV when valid, or echo.</span></div>
+              <div class="tile"><b>Congestion decision</b><span>High CVP plus renal/liver congestion signs: consider RV failure, TR, tamponade/constriction, high PEEP, volume overload; correlate with VExUS/echo.</span></div>
+            </div>
+          </div>
+          <div class="gauge" aria-label="CVP gauge">
+            <div class="needle" id="needle"></div>
+            <div class="gVal"><div class="gCenter"><span id="cvpValue">8</span><small>mmHg CVP</small></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pitfalls">
+      <div class="sectionTitle"><h2>6. Pitfalls and diagnostic patterns</h2><p>A CVP mistake may be physiological or technical. Always separate “bad measurement” from “real high right atrial pressure”.</p></div>
+      <div class="grid2">
+        <div class="card">
+          <h3>High CVP differential</h3>
+          <div class="grid2" style="gap:12px">
+            <div class="callout"><b>Right heart</b><br/>RV failure, pulmonary hypertension, RV infarction, PE, cor pulmonale.</div>
+            <div class="callout"><b>Valve/pericardium</b><br/>Tricuspid regurgitation/stenosis, tamponade, constrictive pericarditis.</div>
+            <div class="callout"><b>External pressure</b><br/>High PEEP, high plateau pressure, raised intra-abdominal pressure.</div>
+            <div class="callout"><b>Volume/venous tone</b><br/>Fluid overload, venoconstriction, hyperdynamic circulation.</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Waveform clue table</h3>
+          <table>
+            <thead><tr><th>Finding</th><th>Think of</th></tr></thead>
+            <tbody>
+              <tr><td>Absent a wave</td><td>Atrial fibrillation; also atrial flutter or ventricular pacing without atrial capture.</td></tr>
+              <tr><td>Cannon a waves</td><td>AV dissociation, complete heart block, junctional rhythm, VT.</td></tr>
+              <tr><td>Giant v waves / c-v fusion</td><td>Tricuspid regurgitation, severe RA systolic backflow.</td></tr>
+              <tr><td>Prominent x descent</td><td>Tamponade or constrictive physiology; use echo.</td></tr>
+              <tr><td>Rapid y descent</td><td>Constrictive pericarditis or severe TR.</td></tr>
+              <tr><td>Slow y descent</td><td>Tricuspid stenosis, atrial myxoma.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="quick">
+      <div class="sectionTitle"><h2>7. Quick ICU framework</h2><p>Use CVP as one element of hemodynamic phenotyping, not as a fluid order generator.</p></div>
+      <div class="grid4">
+        <div class="card"><h3>1. Validate</h3><p>Level, zero, end-expiration, no infusion, good waveform.</p></div>
+        <div class="card"><h3>2. Identify shape</h3><p>a/c/v/x/y pattern: rhythm, valve and pericardial clues.</p></div>
+        <div class="card"><h3>3. Phenotype</h3><p>Shock with low CVP differs from shock with high CVP and venous congestion.</p></div>
+        <div class="card"><h3>4. Test response</h3><p>Use PLR/mini-fluid with stroke volume or echo, not static CVP alone.</p></div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3>Bedside one-liner</h3>
+        <p class="lead" style="margin:0; font-size:19px">"CVP is a <b>right-heart pressure and a waveform</b>. A low CVP may support low stressed volume; a high CVP should trigger a congestion / RV / pericardial / ventilator differential. Fluid responsiveness needs a dynamic test."</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <div class="card refs">
+      <h3>Source notes used to build this teaching page</h3>
+      <ol>
+        <li>LITFL Critical Care Compendium: CVP definition, normal range in spontaneous breathing, end-expiratory measurement, waveform elements, causes of raised CVP and technical accuracy factors.</li>
+        <li>CVPhysiology: CVP as pressure in the thoracic vena cava near the right atrium; CVP and right atrial pressure are essentially similar in this context.</li>
+        <li>Surviving Sepsis Campaign 2026: dynamic measures are suggested over physical examination or static measures alone for guiding fluid resuscitation in sepsis/septic shock.</li>
+        <li>Magder review: reference level for vascular pressure measurements is the midpoint of the right atrium and small CVP changes can have hemodynamic significance.</li>
+        <li>Deranged Physiology: educational waveform timing and waveform abnormality interpretations.</li>
+      </ol>
+      <p class="small">Educational material for clinicians. Not a substitute for local protocols, calibrated equipment, echocardiography, invasive hemodynamic review, or senior clinical judgment.</p>
+    </div>
+  </footer>
+
+<script>
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.tabPanel');
+const wave = document.getElementById('mainWave');
+const labels = document.getElementById('labels');
+const runner = document.getElementById('runner');
+const paths = {
+  normal: 'M75 250 C110 250 125 245 138 205 C151 162 187 172 198 228 C206 268 245 270 275 235 C315 188 337 168 358 188 C376 204 374 237 415 240 C454 242 478 232 495 205 C520 165 560 178 578 230 C594 276 642 270 680 230 C720 190 735 162 760 190 C785 218 790 237 820 244',
+  af: 'M75 248 C115 254 153 236 190 248 C235 262 275 230 320 245 C370 263 410 235 450 251 C510 276 540 220 592 248 C655 280 700 220 820 246',
+  tr: 'M75 252 C120 252 150 235 175 222 C225 190 255 96 305 104 C360 115 385 232 430 240 C470 248 500 155 548 96 C610 20 655 170 690 221 C725 272 780 250 820 245',
+  tamponade: 'M75 248 C120 245 145 236 165 200 C190 150 238 156 258 220 C280 290 342 280 380 238 C420 190 468 170 505 228 C530 266 585 264 620 238 C660 210 704 196 735 220 C770 247 795 250 820 246'
+};
+const labelText = {
+  normal: '<text x="135" y="145">a</text><text x="350" y="155">c</text><text x="430" y="278">x</text><text x="574" y="157">v</text><text x="672" y="278">y</text>',
+  af: '<text x="130" y="170">no a</text><text x="430" y="285">irregular baseline</text><text x="610" y="170">v</text>',
+  tr: '<text x="290" y="82">giant v / c-v wave</text><text x="505" y="82">TR</text><text x="675" y="282">y</text>',
+  tamponade: '<text x="160" y="130">a</text><text x="315" y="300">deep x</text><text x="625" y="260">blunted/variable y</text>'
+};
+function setWave(type){
+  wave.setAttribute('d', paths[type]);
+  labels.innerHTML = labelText[type];
+  const old = runner.querySelector('animateMotion');
+  if(old) old.remove();
+  const ns = 'http://www.w3.org/2000/svg';
+  const anim = document.createElementNS(ns, 'animateMotion');
+  anim.setAttribute('dur','5s'); anim.setAttribute('repeatCount','indefinite'); anim.setAttribute('rotate','auto'); anim.setAttribute('path', paths[type]);
+  runner.appendChild(anim); anim.beginElement();
+}
+tabs.forEach(btn => btn.addEventListener('click', () => {
+  tabs.forEach(b => b.classList.remove('active')); btn.classList.add('active');
+  panels.forEach(p => p.classList.remove('active')); document.getElementById(btn.dataset.tab).classList.add('active');
+  setWave(btn.dataset.tab);
+}));
+const cvpRange = document.getElementById('cvpRange');
+const cvpValue = document.getElementById('cvpValue');
+const needle = document.getElementById('needle');
+const zoneTitle = document.getElementById('zoneTitle');
+const zoneText = document.getElementById('zoneText');
+const cmText = document.getElementById('cmText');
+function updateGauge(){
+  const v = Number(cvpRange.value); cvpValue.textContent = v;
+  const angle = -125 + (v/25)*250; needle.style.transform = `rotate(${angle}deg)`;
+  cmText.textContent = `${v} mmHg ≈ ${(v*1.36).toFixed(1)} cmH₂O`;
+  if(v <= 5){ zoneTitle.textContent = 'Low / low-normal CVP'; zoneText.textContent = 'Can fit hypovolemia, venodilation, sepsis early phase, or high venous compliance — but correlate with perfusion and dynamic response.'; }
+  else if(v <= 10){ zoneTitle.textContent = 'Contextual mid-zone'; zoneText.textContent = 'Often not decisive. Trends, waveform, ventilation, echo and perfusion markers decide meaning.'; }
+  else if(v <= 15){ zoneTitle.textContent = 'Elevated CVP'; zoneText.textContent = 'Think RV dysfunction, venous congestion, PEEP effect, pulmonary hypertension, TR, tamponade/constriction, fluid overload.'; }
+  else { zoneTitle.textContent = 'Very high CVP'; zoneText.textContent = 'Treat as high right atrial pressure until proven otherwise. Search for obstructive/RV/pericardial/ventilator/abdominal-pressure causes.'; }
+}
+cvpRange.addEventListener('input', updateGauge); updateGauge();
+</script>
+</body>
+</html>
