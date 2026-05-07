@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>Ultrasound Artifacts — Animated Learning Page</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(17, 34, 58, 0.82);
+      --panel2: rgba(9, 20, 35, 0.72);
+      --text: #eaf6ff;
+      --muted: #9fb8d1;
+      --cyan: #37d5ff;
+      --green: #7CFFB2;
+      --yellow: #ffd166;
+      --orange: #ff8a4c;
+      --red: #ff5c7c;
+      --purple: #b995ff;
+      --blue-arrow: #4a90e2;
+      --shadow: rgba(0,0,0,0.38);
+      --glass: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.14);
+      --grid: rgba(80, 180, 255, 0.14);
+
+      /* ultrasound palette */
+      --us-bg: #1a1f26;
+      --us-tissue: #6a6d72;
+      --us-tissue-mid: #595c61;
+      --us-tissue-deep: #4a4d52;
+      --us-hyper: #d8dde2;     /* bright reflectors */
+      --us-iso:   #8d9096;     /* solid lesions */
+      --us-hypo:  #2a2d31;     /* anechoic */
+      --us-shadow:#0a0b0d;
+      --us-enhance:#9aa0a6;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(55,213,255,0.22), transparent 34rem),
+        radial-gradient(circle at 80% 10%, rgba(185,149,255,0.18), transparent 30rem),
+        linear-gradient(135deg, #050a12 0%, #07111f 48%, #081624 100%);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; }
+
+    .video-section {
+      position: relative;
+      z-index: 2;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 2.5rem 1.2rem 0;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 */
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 28px 80px var(--shadow), 0 0 60px rgba(55,213,255,.12);
+      background: #000;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .noise {
+      position: fixed; inset: 0; pointer-events: none;
+      opacity: .08;
+      background-image: repeating-radial-gradient(circle at 20% 30%, rgba(255,255,255,.15) 0 1px, transparent 1px 4px);
+      mix-blend-mode: screen;
+      z-index: 0;
+    }
+
+    header {
+      min-height: 80vh;
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 4rem 1.2rem 2rem;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: -10% -10% 0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 44px 44px;
+      transform: perspective(750px) rotateX(62deg) translateY(18%);
+      transform-origin: center bottom;
+      animation: gridMove 11s linear infinite;
+      opacity: .72;
+    }
+
+    @keyframes gridMove {
+      from { background-position: 0 0; }
+      to { background-position: 0 88px; }
+    }
+
+    .hero {
+      max-width: 1180px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 2rem;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-card, .toc-card, .artifact-card, .assumption-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.035));
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      box-shadow: 0 28px 80px var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero-card { padding: clamp(1.4rem, 4vw, 3rem); }
+
+    .kicker {
+      display: inline-flex; gap: .55rem; align-items: center;
+      color: var(--green);
+      border: 1px solid rgba(124,255,178,.28);
+      background: rgba(124,255,178,.08);
+      border-radius: 999px;
+      padding: .45rem .75rem;
+      font-size: .86rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 8vw, 7.2rem);
+      line-height: .92;
+      margin: 1.25rem 0 1rem;
+      letter-spacing: -.08em;
+    }
+
+    h1 span {
+      background: linear-gradient(90deg, #fff, var(--cyan), var(--green));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.9vw, 1.25rem);
+      line-height: 1.65;
+      margin: 0 0 1.5rem;
+    }
+
+    .hero-buttons { display: flex; flex-wrap: wrap; gap: .8rem; }
+
+    .btn {
+      border: 0; cursor: pointer;
+      border-radius: 999px;
+      padding: .85rem 1.1rem;
+      color: #04101c;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      font-weight: 800;
+      box-shadow: 0 10px 30px rgba(55,213,255,.25);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .btn.secondary {
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    /* ========== HERO SCANNER (decorative) ========== */
+    .scanner-stage {
+      min-height: 530px;
+      position: relative;
+      border-radius: 34px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 10%, rgba(55,213,255,.22), transparent 22rem),
+        linear-gradient(180deg, rgba(8,21,38,.8), rgba(4,9,16,.92));
+      border: 1px solid var(--border);
+      box-shadow: inset 0 0 80px rgba(55,213,255,.08), 0 28px 80px var(--shadow);
+    }
+
+    .probe-icon {
+      position: absolute;
+      top: 28px; left: 50%;
+      width: 200px; height: 78px;
+      transform: translateX(-50%) perspective(600px) rotateX(10deg);
+      border-radius: 24px 24px 18px 18px;
+      background: linear-gradient(145deg, #d8edf8, #6d8398 45%, #27394d 100%);
+      box-shadow: 0 18px 35px rgba(0,0,0,.4), inset 0 4px 14px rgba(255,255,255,.45);
+      z-index: 3;
+    }
+    .probe-icon::before {
+      content: "TRANSDUCER";
+      position: absolute; inset: auto 22px 10px;
+      text-align: center;
+      font-size: .68rem;
+      letter-spacing: .16em;
+      color: rgba(255,255,255,.8);
+    }
+
+    .hero-fan {
+      position: absolute; top: 92px; left: 50%;
+      width: 470px; height: 390px;
+      transform: translateX(-50%);
+      clip-path: polygon(50% 0%, 3% 100%, 97% 100%);
+      background:
+        repeating-radial-gradient(circle at 50% 0%, rgba(55,213,255,.18) 0 1px, transparent 1px 26px),
+        rgba(55,213,255,.04);
+      border-bottom: 1px solid rgba(55,213,255,.35);
+      filter: drop-shadow(0 0 24px rgba(55,213,255,.22));
+      opacity: .92;
+    }
+
+    .hero-beam {
+      position: absolute;
+      width: 4px; height: 390px;
+      top: 92px; left: 50%;
+      transform-origin: top center;
+      background: linear-gradient(180deg, rgba(124,255,178,.95), rgba(55,213,255,.1), transparent);
+      box-shadow: 0 0 16px rgba(124,255,178,.8);
+      animation: sweep 3.4s ease-in-out infinite alternate;
+    }
+    @keyframes sweep {
+      from { transform: rotate(-27deg); }
+      to   { transform: rotate(27deg); }
+    }
+
+    .hero-organ {
+      position: absolute;
+      border-radius: 50%;
+      box-shadow: inset -20px -25px 40px rgba(0,0,0,.35), inset 18px 18px 35px rgba(255,255,255,.16), 0 18px 36px rgba(0,0,0,.32);
+    }
+    .hero-organ.liver {
+      width: 240px; height: 150px;
+      left: 44px; bottom: 70px;
+      background: linear-gradient(135deg, #8b3f48, #c76771 50%, #5e2431);
+      border-radius: 55% 45% 52% 48%;
+      transform: rotate(-8deg);
+    }
+    .hero-organ.cyst {
+      width: 118px; height: 92px;
+      right: 92px; bottom: 138px;
+      background: radial-gradient(circle at 38% 28%, #d6fbff, #37d5ff 38%, #0a5d82 90%);
+      border: 1px solid rgba(214,251,255,.5);
+      animation: float 3.2s ease-in-out infinite;
+    }
+    .diaphragm-line {
+      position: absolute;
+      width: 420px; height: 52px;
+      left: 50%; bottom: 88px;
+      transform: translateX(-50%) rotate(-3deg);
+      border-radius: 50%;
+      border-top: 8px solid rgba(255,255,255,.72);
+      filter: drop-shadow(0 0 22px rgba(255,255,255,.32));
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%     { transform: translateY(-12px); }
+    }
+
+    /* ========== LAYOUT ========== */
+    main { position: relative; z-index: 1; padding: 0 1rem 5rem; }
+    section { max-width: 1180px; margin: 0 auto 2rem; }
+
+    .toc-card {
+      padding: 1.2rem;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: .7rem;
+      position: sticky;
+      top: .7rem;
+      z-index: 10;
+    }
+    .toc-card a {
+      text-decoration: none;
+      color: var(--text);
+      padding: .7rem .8rem;
+      border-radius: 16px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      font-size: .88rem;
+      text-align: center;
+      transition: .2s ease;
+    }
+    .toc-card a:hover { transform: translateY(-2px); background: rgba(55,213,255,.14); }
+
+    .assumptions {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .assumption-card {
+      padding: 1rem;
+      min-height: 180px;
+      position: relative;
+      overflow: hidden;
+    }
+    .assumption-card strong { display: block; font-size: 1.1rem; margin-bottom: .45rem; }
+    .assumption-card p { color: var(--muted); margin: 0; line-height: 1.45; font-size: .94rem; }
+    .assumption-card::after {
+      content: attr(data-num);
+      position: absolute;
+      right: -6px; bottom: -26px;
+      font-size: 7rem;
+      font-weight: 900;
+      color: rgba(255,255,255,.055);
+    }
+
+    .section-title {
+      display: flex; align-items: end; justify-content: space-between;
+      gap: 1rem; margin: 5rem 0 1.2rem;
+    }
+    .section-title h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4.5vw, 4rem);
+      letter-spacing: -.05em;
+    }
+    .section-title p { color: var(--muted); max-width: 520px; line-height: 1.6; margin: 0; }
+
+    .artifact-card {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 1.2rem;
+      padding: 1rem;
+      min-height: 560px;
+      overflow: hidden;
+    }
+
+    .explain { padding: clamp(1rem, 2vw, 1.5rem); }
+    .explain h3 {
+      font-size: clamp(1.6rem, 3vw, 2.6rem);
+      margin: .2rem 0 .7rem;
+      letter-spacing: -.04em;
+    }
+    .explain p, .explain li {
+      color: var(--muted);
+      line-height: 1.68;
+      font-size: 1rem;
+    }
+    .tag-row { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+    .tag {
+      padding: .38rem .65rem;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      border-radius: 999px;
+      color: #d9f5ff;
+      font-size: .82rem;
+    }
+    .mini-title {
+      color: var(--green);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      font-size: .78rem;
+    }
+    .formula-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      color: #dff8ff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      line-height: 1.6;
+      font-size: .92rem;
+    }
+
+    /* ============================================================
+       SIM CONTAINER — black frame holding an SVG sector view
+       Each sim is a 16:10 SVG that we draw the artifact inside of.
+       ============================================================ */
+    .sim {
+      position: relative;
+      min-height: 460px;
+      border-radius: 18px;
+      background: #050608;
+      border: 1px solid rgba(255,255,255,.08);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+    }
+
+    .sim svg {
+      width: 100%;
+      height: auto;
+      max-height: 480px;
+      display: block;
+    }
+
+    .sim-title {
+      position: absolute;
+      top: .9rem; left: 1.1rem;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .18em;
+      color: rgba(255,255,255,.55);
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    /* small SVG helper classes */
+    .focus-dot { animation: focusPulse 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes focusPulse {
+      0%,100% { opacity: .85; transform: scale(1); }
+      50%     { opacity: 1;   transform: scale(1.4); }
+    }
+
+    /* shared helper used by mirror ghost and ambiguity ghost */
+    @keyframes fadeIn {
+      0%,30% { opacity: 0; }
+      55%    { opacity: .9; }
+      90%    { opacity: .9; }
+      100%   { opacity: 0; }
+    }
+
+    /* === REFRACTION ===
+       The sim has two halves running on the same 5s cycle:
+       LEFT (edge shadowing):  vertical beam draws to cyst edge → bends
+                               away into the wedge → repeats.
+       RIGHT (duplication):    real bent beam draws to real lesion →
+                               assumed straight beam fades in → ghost
+                               lesion fades in → all reset. */
+
+    /* edge shadow side */
+    .refr-edge-beam       { animation: refrEdgeIn  5s ease-in-out infinite; }
+    .refr-edge-beam.right { animation-delay: .15s; }
+    .refr-edge-bent       { animation: refrEdgeOut 5s ease-in-out infinite; }
+    .refr-edge-bent.right { animation-delay: .15s; }
+    @keyframes refrEdgeIn {
+      0%,5%   { opacity: 0; }
+      18%,55% { opacity: 1; }
+      75%,100%{ opacity: 0; }
+    }
+    @keyframes refrEdgeOut {
+      0%,30%  { opacity: 0; }
+      45%,75% { opacity: .9; }
+      90%,100%{ opacity: 0; }
+    }
+
+    /* duplication side */
+    .refr-real    { animation: refrRealDraw 5s ease-in-out infinite; }
+    .refr-assumed { animation: refrAssumed  5s ease-in-out infinite; }
+    .refr-ghost   { animation: refrGhost    5s ease-in-out infinite; }
+    @keyframes refrRealDraw {
+      0%,5%   { stroke-dashoffset: 380; opacity: 1; }
+      35%     { stroke-dashoffset: 0;   opacity: 1; }
+      85%     { stroke-dashoffset: 0;   opacity: 1; }
+      100%    { stroke-dashoffset: 0;   opacity: 0; }
+    }
+    @keyframes refrAssumed {
+      0%,40%  { opacity: 0; }
+      55%,85% { opacity: .85; }
+      100%    { opacity: 0; }
+    }
+    @keyframes refrGhost {
+      0%,55%  { opacity: 0; }
+      70%,85% { opacity: .8; }
+      100%    { opacity: 0; }
+    }
+
+    /* === MIRROR === */
+    .mir-arrow-down { stroke-dasharray: 240; stroke-dashoffset: 240; animation: drawDown 4s ease-in-out infinite; }
+    .mir-arrow-up   { stroke-dasharray: 240; stroke-dashoffset: 240; animation: drawUp   4s ease-in-out infinite; }
+    .mir-ghost      { opacity: 0; animation: fadeIn 4s ease-in-out infinite 2.2s; }
+    @keyframes drawDown {
+      0%,15% { stroke-dashoffset: 240; }
+      45%    { stroke-dashoffset: 0; }
+      90%    { stroke-dashoffset: 0; opacity: 1; }
+      100%   { stroke-dashoffset: 0; opacity: 0; }
+    }
+    @keyframes drawUp {
+      0%,45% { stroke-dashoffset: 240; }
+      75%    { stroke-dashoffset: 0; }
+      90%    { stroke-dashoffset: 0; opacity: 1; }
+      100%   { stroke-dashoffset: 0; opacity: 0; }
+    }
+
+    /* === REVERBERATION === */
+    .rev-bounce-down  { stroke-dasharray: 200; stroke-dashoffset: 200; animation: drawDown 2.8s ease-in-out infinite; }
+    .rev-bounce-up    { stroke-dasharray: 200; stroke-dashoffset: 200; animation: drawUp   2.8s ease-in-out infinite; }
+    .rev-line { opacity: 0; }
+    .rev-line.l1 { animation: revAppear 2.8s ease-in-out infinite .2s; }
+    .rev-line.l2 { animation: revAppear 2.8s ease-in-out infinite .55s; }
+    .rev-line.l3 { animation: revAppear 2.8s ease-in-out infinite .9s; }
+    .rev-line.l4 { animation: revAppear 2.8s ease-in-out infinite 1.25s; }
+    .rev-line.l5 { animation: revAppear 2.8s ease-in-out infinite 1.6s; }
+    @keyframes revAppear {
+      0%   { opacity: 0; }
+      40%  { opacity: 1; }
+      85%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* === RING-DOWN / COMET === */
+    .rd-tail rect {
+      transform-box: fill-box;
+      transform-origin: top center;
+      transform: scaleY(0);
+    }
+    .rd-tail.t1 rect { animation: tailGrow 1.6s ease-in-out infinite .0s; }
+    .rd-tail.t2 rect { animation: tailGrow 1.6s ease-in-out infinite .15s; }
+    .rd-tail.t3 rect { animation: tailGrow 1.6s ease-in-out infinite .3s; }
+    .rd-tail.t4 rect { animation: tailGrow 1.6s ease-in-out infinite .45s; }
+    .rd-tail.t5 rect { animation: tailGrow 1.6s ease-in-out infinite .6s; }
+    @keyframes tailGrow {
+      0%   { transform: scaleY(0); opacity: 0; }
+      30%  { transform: scaleY(.6); opacity: 1; }
+      70%  { transform: scaleY(1); opacity: .9; }
+      100% { transform: scaleY(1); opacity: 0; }
+    }
+
+    /* === SIDE LOBE ===
+       4-stage sequence on a 4.4s loop:
+         1. side-lobe beam draws OUT-and-DOWN to the off-axis reflector
+         2. dashed echo returns along the same path
+         3. dashed assumed-axis line drops straight down to the same depth
+         4. false echo (curved streak) appears inside the anechoic cyst
+       Then everything fades and resets. */
+    .sl-out      { animation: slOut      4.4s ease-in-out infinite; }
+    .sl-in       { animation: slIn       4.4s ease-in-out infinite; }
+    .sl-assumed  { animation: slAssumed  4.4s ease-in-out infinite; }
+    .sl-false-echo { animation: slFalse  4.4s ease-in-out infinite; }
+    @keyframes slOut {
+      0%,5%   { stroke-dashoffset: 430; opacity: 1; }
+      28%     { stroke-dashoffset: 0;   opacity: 1; }
+      85%     { stroke-dashoffset: 0;   opacity: 1; }
+      100%    { stroke-dashoffset: 0;   opacity: 0; }
+    }
+    @keyframes slIn {
+      0%,28%  { opacity: 0; }
+      45%,85% { opacity: .9; }
+      100%    { opacity: 0; }
+    }
+    @keyframes slAssumed {
+      0%,45%  { opacity: 0; }
+      60%,85% { opacity: .85; }
+      100%    { opacity: 0; }
+    }
+    @keyframes slFalse {
+      0%,60%  { opacity: 0; }
+      72%,90% { opacity: .9; }
+      100%    { opacity: 0; }
+    }
+
+    /* gentle pulse on the side-lobe shapes in the beam diagram */
+    .sl-side-beam       { animation: lobePulse 2.4s ease-in-out infinite; }
+    .sl-side-beam.right { animation-delay: .2s; }
+    @keyframes lobePulse {
+      0%,100% { opacity: .35; }
+      50%     { opacity: .9; }
+    }
+
+    /* === SHADOWING / ENHANCEMENT — pure CSS, no animation needed === */
+
+    /* === SPEED ERROR — middle segment of the line drops down === */
+    .se-kink { animation: speedKink 4s ease-in-out infinite; }
+    @keyframes speedKink {
+      0%,15%  { transform: translateY(0); }
+      55%,100%{ transform: translateY(34px); }
+    }
+
+    /* === AMBIGUITY === */
+    .amb-pulse-down { stroke-dasharray: 360; stroke-dashoffset: 360; animation: drawDown 4s ease-in-out infinite; }
+    .amb-ghost      { opacity: 0; animation: fadeIn 4s ease-in-out infinite 2.4s; }
+
+    /* ========== FOOTER / QUIZ ========== */
+    .footer {
+      max-width: 1180px;
+      margin: 4rem auto 0;
+      padding: 2rem;
+      border-radius: 28px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .quiz {
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1rem;
+    }
+    .quiz button {
+      width: 100%;
+      margin-top: .8rem;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(55,213,255,.12);
+      color: var(--text);
+      border-radius: 14px;
+      padding: .7rem;
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .answer { display: none; color: var(--green); margin-top: .7rem; }
+    .quiz.open .answer { display: block; }
+
+    @media (max-width: 980px) {
+      .hero, .artifact-card { grid-template-columns: 1fr; }
+      .toc-card { grid-template-columns: repeat(2,1fr); position: relative; top: 0; }
+      .assumptions { grid-template-columns: repeat(2,1fr); }
+      .quiz-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 580px) {
+      header { padding-top: 1rem; }
+      .scanner-stage, .sim { min-height: 380px; }
+      .assumptions { grid-template-columns: 1fr; }
+      .toc-card { grid-template-columns: 1fr; }
+      .section-title { display: block; }
+      .artifact-card { padding: .55rem; }
+      .probe-icon { width: 160px; }
+      .hero-fan { width: 360px; }
+      h1 { letter-spacing: -.06em; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001s !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+
+  <!-- ===================== VIDEO ===================== -->
+  <section class="video-section">
+    <div class="video-container">
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/GOWlzuMziUU?si=nfTwyM3FQKH3YSN8"
+        title="Ultrasound Artifacts Video"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+      </iframe>
+    </div>
+  </section>
+
+  <!-- ===================== HERO ===================== -->
+  <header>
+    <div class="hero-grid"></div>
+    <div class="hero">
+      <div class="hero-card">
+        <div class="kicker">B-mode ultrasound physics</div>
+        <h1>Ultrasound <span>Artifacts</span></h1>
+        <p>
+          Artifacts are not random errors. They are predictable image lies created when the ultrasound machine relies on simplified assumptions about sound. This page explains each major artifact using animated B-mode style simulations.
+        </p>
+        <div class="hero-buttons">
+          <a class="btn" href="#assumptions">Start with assumptions</a>
+          <a class="btn secondary" href="#refraction">Jump to simulations</a>
+        </div>
+      </div>
+
+      <div class="scanner-stage" aria-label="Animated ultrasound scanner">
+        <div class="probe-icon"></div>
+        <div class="hero-fan"></div>
+        <div class="hero-beam"></div>
+        <div class="hero-organ liver"></div>
+        <div class="hero-organ cyst"></div>
+        <div class="diaphragm-line"></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="toc-card">
+      <a href="#refraction">1. Refraction</a>
+      <a href="#mirror">2. Mirror</a>
+      <a href="#reverb">3. Reverberation</a>
+      <a href="#ringdown">4. Ring-down / comet</a>
+      <a href="#sidelobe">5. Side lobes</a>
+      <a href="#attenuation">6. Shadow / enhance</a>
+      <a href="#speed">7. Speed error</a>
+      <a href="#ambiguity">8. Ambiguity</a>
+      <a href="#quiz">Rapid revision</a>
+      <a href="#summary">Summary</a>
+    </section>
+
+    <section id="assumptions">
+      <div class="section-title">
+        <h2>The 5 false assumptions</h2>
+        <p>The machine converts time and echo intensity into pixels. Artifacts appear when real tissue violates these assumptions.</p>
+      </div>
+      <div class="assumptions">
+        <div class="assumption-card" data-num="1"><strong>Constant speed</strong><p>The scanner assumes sound travels at about 1540 m/s in soft tissue, but fat, muscle, bone, and fluid all differ.</p></div>
+        <div class="assumption-card" data-num="2"><strong>Straight lines</strong><p>The scanner assumes pulses travel straight, but refraction bends sound at oblique boundaries.</p></div>
+        <div class="assumption-card" data-num="3"><strong>Echo returns inline</strong><p>The scanner assumes returning echoes come back along the same beam line, not from off-axis paths.</p></div>
+        <div class="assumption-card" data-num="4"><strong>Single reflection</strong><p>The scanner assumes one reflection per pulse, but sound can bounce repeatedly between strong reflectors.</p></div>
+        <div class="assumption-card" data-num="5"><strong>Linear attenuation</strong><p>The scanner assumes weakening is mainly depth-dependent, but bone, air, fluid, and calcification attenuate very differently.</p></div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SVG SIMULATIONS — all use the same 800 × 500 viewBox.
+         Sector fan path:    M 80 30 L 720 30 A 720 720 0 0 1 80 30
+         (top probe footprint at y=30 spans x=80..720; bottom curve at y≈480)
+         Simpler: draw fan as polygon with gentle curve approximated.
+         ============================================================ -->
+
+    <!-- defs reused via <use> — placed once at top -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <!-- sector fill: tissue gradient -->
+        <linearGradient id="tissueGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#7a7d82"/>
+          <stop offset="60%" stop-color="#5e6166"/>
+          <stop offset="100%" stop-color="#4a4d52"/>
+        </linearGradient>
+        <!-- ring-down tail gradient (white at top → fade to transparent) -->
+        <linearGradient id="tailGrad1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#ffffff" stop-opacity=".95"/>
+          <stop offset="60%" stop-color="#cfd2d6" stop-opacity=".55"/>
+          <stop offset="100%" stop-color="#cfd2d6" stop-opacity="0"/>
+        </linearGradient>
+        <!-- arrowhead, solid fill -->
+        <marker id="arrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#4a90e2"/>
+        </marker>
+        <!-- arrowhead, hollow outline -->
+        <marker id="arrowBlueOpen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="none" stroke="#4a90e2" stroke-width="1.5"/>
+        </marker>
+      </defs>
+    </svg>
+
+    <!-- ============== 1. REFRACTION ============== -->
+    <section id="refraction">
+      <div class="section-title">
+        <h2>1. Refraction artifacts</h2>
+        <p>Sound bends when it crosses a tissue boundary at an angle and enters a medium with a different propagation speed.</p>
+      </div>
+      <div class="artifact-card">
+        <div class="sim">
+          <span class="sim-title">Refraction — duplication & edge shadow</span>
+          <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+            <!-- sector fan -->
+            <path d="M 280 40 L 520 40 L 740 460 Q 400 510 60 460 Z" fill="url(#tissueGrad)"/>
+
+            <!-- ===== EDGE SHADOWING (left half) =====
+                 A round anechoic cyst with bright outline.
+                 Two dark wedge shadows extend from its lateral edges. -->
+
+            <!-- left edge shadow wedge -->
+            <path d="M 175 245 L 232 245 L 200 480 L 110 480 Z"
+                  fill="#0a0b0d" opacity=".7"/>
+            <!-- right edge shadow wedge -->
+            <path d="M 308 245 L 365 245 L 405 480 L 320 480 Z"
+                  fill="#0a0b0d" opacity=".7"/>
+
+            <!-- the cyst itself -->
+            <ellipse cx="270" cy="225" rx="62" ry="50"
+                     fill="#1a1c1f" stroke="#cfd2d6" stroke-width="2.2"/>
+            <circle class="focus-dot" cx="270" cy="225" r="4" fill="#ff5050"/>
+
+            <!-- bent beams hitting the curved edges (animated) -->
+            <line class="refr-edge-beam left"
+                  x1="200" y1="50" x2="218" y2="200"
+                  stroke="#4a90e2" stroke-width="2" opacity="0"
+                  marker-end="url(#arrowBlue)"/>
+            <line class="refr-edge-beam right"
+                  x1="338" y1="50" x2="320" y2="200"
+                  stroke="#4a90e2" stroke-width="2" opacity="0"
+                  marker-end="url(#arrowBlue)"/>
+            <!-- refracted-away dashed continuations -->
+            <line class="refr-edge-bent left"
+                  x1="218" y1="200" x2="135" y2="450"
+                  stroke="#4a90e2" stroke-width="1.8"
+                  stroke-dasharray="5 5" opacity="0"
+                  marker-end="url(#arrowBlueOpen)"/>
+            <line class="refr-edge-bent right"
+                  x1="320" y1="200" x2="395" y2="450"
+                  stroke="#4a90e2" stroke-width="1.8"
+                  stroke-dasharray="5 5" opacity="0"
+                  marker-end="url(#arrowBlueOpen)"/>
+
+            <!-- divider between the two demonstrations -->
+            <line x1="450" y1="60" x2="450" y2="475"
+                  stroke="#fff" stroke-width="1"
+                  stroke-dasharray="2 6" opacity=".18"/>
+
+            <!-- ===== OBJECT DUPLICATION (right half) =====
+                 An oblique tissue interface; a real lesion below it;
+                 a refracted beam reaches the lesion via a side path,
+                 but the machine plots a DUPLICATE along the assumed
+                 straight line. -->
+
+            <!-- oblique tissue interface (bright line) -->
+            <path d="M 470 280 L 720 360"
+                  stroke="#e2e6ea" stroke-width="3" opacity=".88"/>
+
+            <!-- real lesion (light grey) — below the interface -->
+            <ellipse cx="555" cy="395" rx="26" ry="22" fill="#a3a7ad"/>
+
+            <!-- duplicated ghost lesion (red-tinted) — appears at the
+                 location the machine WRONGLY plots based on assumed
+                 straight-line travel. Animated to fade in. -->
+            <ellipse class="refr-ghost" cx="635" cy="395" rx="26" ry="22"
+                     fill="#c97070" opacity="0"/>
+
+            <!-- assumed straight beam (dashed) — probe down to ghost location -->
+            <line class="refr-assumed"
+                  x1="635" y1="50" x2="635" y2="380"
+                  stroke="#4a90e2" stroke-width="2"
+                  stroke-dasharray="6 5" opacity="0"
+                  marker-end="url(#arrowBlueOpen)"/>
+
+            <!-- real refracted path: probe down, bends at interface, reaches lesion -->
+            <polyline class="refr-real"
+                      points="635,50 635,318 555,378"
+                      stroke="#4a90e2" stroke-width="2.6" fill="none"
+                      stroke-dasharray="380" stroke-dashoffset="380"
+                      marker-end="url(#arrowBlue)"/>
+
+            <!-- labels -->
+            <text x="155" y="32" fill="#dfe3e8" font-size="11"
+                  font-family="Inter, sans-serif" font-weight="700"
+                  letter-spacing=".12em" opacity=".7">EDGE SHADOWING</text>
+            <text x="475" y="32" fill="#dfe3e8" font-size="11"
+                  font-family="Inter, sans-serif" font-weight="700"
+                  letter-spacing=".12em" opacity=".7">OBJECT DUPLICATION</text>
+            <text x="525" y="450" fill="#dfe3e8" font-size="10"
+                  font-family="Inter, sans-serif" font-weight="600" opacity=".7">real</text>
+            <text x="608" y="450" fill="#dfe3e8" font-size="10"
+                  font-family="Inter, sans-serif" font-weight="600" opacity=".7">ghost</text>
+          </svg>
+        </div>
+
+        <div class="explain">
+          <div class="mini-title">Mechanism</div>
+          <h3>Object duplication and edge shadowing</h3>
+          <p><strong>Object duplication:</strong> at an oblique tissue interface, the beam bends and reaches a real lesion via a side path. The scanner assumes the echo came back along the original straight beam line (dashed), so it plots a duplicate copy in the wrong location.</p>
+          <p><strong>Edge shadowing:</strong> at the curved edge of a cyst or vessel, the beam strikes obliquely, refracts away, and leaves a wedge-shaped region that receives little sound — visible as a dark stripe extending beyond the lateral edge.</p>
+          <div class="tag-row"><span class="tag">curved surfaces</span><span class="tag">oblique incidence</span><span class="tag">wrong beam line</span></div>
+          <div class="formula-box">sin θ_t / sin θ_i = c₂ / c₁<br>Clinical clue: shadow starts from the lateral edge, not from the whole object.<br>Fix: change probe angle or scan from another window.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 2. MIRROR ============== -->
+    <section id="mirror">
+      <div class="section-title">
+        <h2>2. Mirror artifact</h2>
+        <p>A strong reflector forces sound onto an indirect extra path. The added travel time is misread as added depth.</p>
+      </div>
+      <div class="artifact-card">
+        <div class="sim">
+          <span class="sim-title">Mirror</span>
+          <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 280 40 L 520 40 L 740 460 Q 400 510 60 460 Z" fill="url(#tissueGrad)"/>
+
+            <!-- diaphragm: bright curved line crossing the sector -->
+            <path d="M 110 290 Q 420 235 740 380" stroke="#f0f3f7" stroke-width="4" fill="none" opacity=".95"/>
+
+            <!-- real lesion above the diaphragm (light grey) -->
+            <ellipse cx="380" cy="220" rx="32" ry="28" fill="#a3a7ad"/>
+            <circle class="focus-dot" cx="380" cy="220" r="4" fill="#ff5050"/>
+
+            <!-- false mirror lesion below the diaphragm (red-tinted) -->
+            <ellipse class="mir-ghost" cx="335" cy="395" rx="34" ry="30" fill="#c97070" opacity=".7"/>
+
+            <!-- arrows: probe → lesion and lesion-via-reflector → probe -->
+            <line class="mir-arrow-down" x1="400" y1="40" x2="382" y2="200"
+                  stroke="#4a90e2" stroke-width="2.5" fill="none"
+                  marker-end="url(#arrowBlue)"/>
+            <!-- bounce path: lesion → reflector → probe -->
+            <polyline class="mir-arrow-up"
+                      points="380,240 415,300 400,40"
+                      stroke="#4a90e2" stroke-width="2.5" fill="none"
+                      stroke-dasharray="6 5"
+                      marker-end="url(#arrowBlueOpen)"/>
+          </svg>
+        </div>
+
+        <div class="explain">
+          <div class="mini-title">Mechanism</div>
+          <h3>Object appears on the opposite side of a reflector</h3>
+          <p>The pulse strikes the lesion, then bounces off a strong, smooth interface (diaphragm, pleura, bladder wall) before returning to the probe.</p>
+          <p>Because the machine uses only return time and assumes a straight path, it places a duplicate of the lesion deeper, behind the reflector.</p>
+          <div class="tag-row"><span class="tag">strong reflector</span><span class="tag">extra travel time</span><span class="tag">duplicate beyond boundary</span></div>
+          <div class="formula-box">Classic example: liver lesion mirrored above the diaphragm, mimicking lung pathology.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 3. REVERBERATION ============== -->
+    <section id="reverb">
+      <div class="section-title">
+        <h2>3. Reverberation</h2>
+        <p>Multiple reflections between strong reflectors create repeated horizontal echoes at progressively greater apparent depth.</p>
+      </div>
+      <div class="artifact-card">
+        <div class="sim">
+          <span class="sim-title">Reverberation</span>
+          <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 280 40 L 520 40 L 740 460 Q 400 510 60 460 Z" fill="url(#tissueGrad)"/>
+
+            <!-- bouncing arrows between probe and first strong reflector -->
+            <line class="rev-bounce-down" x1="395" y1="42" x2="395" y2="155"
+                  stroke="#4a90e2" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+            <line class="rev-bounce-up"   x1="408" y1="155" x2="408" y2="42"
+                  stroke="#4a90e2" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+            <line class="rev-bounce-down" x1="420" y1="42" x2="420" y2="155"
+                  stroke="#4a90e2" stroke-width="2.5" marker-end="url(#arrowBlue)" style="animation-delay:.4s"/>
+
+            <!-- 5 horizontal echo lines, equally spaced, fading with depth -->
+            <rect class="rev-line l1" x="240" y="158" width="320" height="9" rx="4" fill="#e6e9ed" opacity=".95"/>
+            <rect class="rev-line l2" x="225" y="225" width="350" height="8" rx="4" fill="#cdd1d6" opacity=".82"/>
+            <rect class="rev-line l3" x="210" y="295" width="380" height="7" rx="4" fill="#a8acb1" opacity=".68"/>
+            <rect class="rev-line l4" x="195" y="365" width="410" height="6" rx="3" fill="#888c91" opacity=".52"/>
+            <rect class="rev-line l5" x="180" y="435" width="440" height="5" rx="3" fill="#6e7176" opacity=".36"/>
+          </svg>
+        </div>
+
+        <div class="explain">
+          <div class="mini-title">Mechanism</div>
+          <h3>Repeated echoes at increasing depth</h3>
+          <p>Sound bounces back and forth between the transducer and a strong reflector (or between two strong reflectors). Each delayed echo is interpreted as a separate, deeper interface.</p>
+          <p>The result is a stack of parallel bright lines. Spacing is roughly equal because each bounce adds a similar extra path length, and brightness decreases with depth as energy is lost.</p>
+          <div class="tag-row"><span class="tag">multiple reflections</span><span class="tag">parallel lines</span><span class="tag">fades with depth</span></div>
+          <div class="formula-box">Clinical clue: equally-spaced bright horizontal lines, dimming with depth — common with metallic surfaces, pleura, and bowel gas.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 4. RING-DOWN / COMET-TAIL ============== -->
+    <section id="ringdown">
+      <div class="section-title">
+        <h2>4. Ring-down and comet-tail</h2>
+        <p>Both create bright vertical streaks descending from a tiny strong reflector — a hallmark of gas, metal, or calcification.</p>
+      </div>
+      <div class="artifact-card">
+        <div class="sim">
+          <span class="sim-title">Ring-down / comet-tail</span>
+          <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 280 40 L 520 40 L 740 460 Q 400 510 60 460 Z" fill="url(#tissueGrad)"/>
+
+            <!-- anechoic structure outline (e.g. gallbladder) -->
+            <ellipse cx="430" cy="280" rx="180" ry="105" fill="#1a1c1f" stroke="#aaadb2" stroke-width="2" opacity=".95"/>
+
+            <!-- ring-down vertical tails inside the anechoic structure -->
+            <g class="rd-tail t1" transform="translate(360 215)">
+              <rect x="-3" y="0" width="6" height="120" fill="url(#tailGrad1)"/>
+            </g>
+            <g class="rd-tail t2" transform="translate(390 210)">
+              <rect x="-3" y="0" width="6" height="135" fill="url(#tailGrad1)"/>
+            </g>
+            <g class="rd-tail t3" transform="translate(420 215)">
+              <rect x="-3" y="0" width="6" height="125" fill="url(#tailGrad1)"/>
+            </g>
+            <g class="rd-tail t4" transform="translate(450 212)">
+              <rect x="-3" y="0" width="6" height="130" fill="url(#tailGrad1)"/>
+            </g>
+            <g class="rd-tail t5" transform="translate(478 218)">
+              <rect x="-3" y="0" width="5" height="115" fill="url(#tailGrad1)"/>
+            </g>
+
+            <!-- bright dots at the top of the tails (microbubbles / source) -->
+            <circle cx="360" cy="213" r="3.5" fill="#ffffff"/>
+            <circle cx="390" cy="208" r="3.5" fill="#ffffff"/>
+            <circle cx="420" cy="213" r="3.5" fill="#ffffff"/>
+            <circle cx="450" cy="210" r="3.5" fill="#ffffff"/>
+            <circle cx="478" cy="216" r="3" fill="#ffffff"/>
+          </svg>
+        </div>
+
+        <div class="explain">
+          <div class="mini-title">Mechanism</div>
+          <h3>Continuous or closely spaced echoes</h3>
+          <p><strong>Ring-down:</strong> fluid trapped between gas microbubbles resonates and emits a continuous train of echoes, producing a bright, solid vertical streak deep to the source.</p>
+          <p><strong>Comet-tail:</strong> tightly packed reverberation between two small, closely spaced, highly reflective surfaces — for example metallic surgical clips or cholesterol crystals.</p>
+          <div class="tag-row"><span class="tag">vertical streak</span><span class="tag">gas or metal</span><span class="tag">high reflectivity</span></div>
+          <div class="formula-box">Clinical clue: B-lines in lung ultrasound (interstitial syndrome), pneumobilia, surgical clips, adenomyomatosis of the gallbladder.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 5. SIDE LOBE / GRATING ============== -->
+    <section id="sidelobe">
+      <div class="section-title">
+        <h2>5. Side lobe / grating lobe artifact</h2>
+        <p>Energy outside the main beam reflects off an off-axis object, but the scanner places it inside the main image.</p>
+      </div>
+      <div class="artifact-card">
+        <div class="sim">
+          <span class="sim-title">Side lobe + beam diagram</span>
+          <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+            <!-- ============== LEFT: SECTOR VIEW ============== -->
+            <g>
+              <!-- sector fan -->
+              <path d="M 200 40 L 380 40 L 540 460 Q 290 500 60 460 Z"
+                    fill="url(#tissueGrad)"/>
+
+              <!-- ANECHOIC CYST inside the sector (where the false echo
+                   will appear). Anechoic = nearly black with a thin
+                   bright outline. -->
+              <ellipse cx="280" cy="265" rx="80" ry="70"
+                       fill="#15171a" stroke="#cfd2d6" stroke-width="2"/>
+
+              <!-- OFF-AXIS REFLECTOR — thin curved bright line just
+                   OUTSIDE the right edge of the sector at a moderate
+                   depth (mimics bowel gas / wire / catheter wall). -->
+              <path d="M 545 360 Q 558 388 572 415"
+                    stroke="#f0f3f7" stroke-width="2.6" fill="none"/>
+
+              <!-- focus dot on the off-axis reflector -->
+              <circle class="focus-dot" cx="555" cy="382" r="4" fill="#ff5050"/>
+
+              <!-- SIDE-LOBE BEAM — leaves the probe at the central
+                   axis (top of fan ~ x=290) and travels OUT-AND-DOWN
+                   at an angle to reach the off-axis reflector. -->
+              <line class="sl-out"
+                    x1="290" y1="50" x2="555" y2="378"
+                    stroke="#4a90e2" stroke-width="2.6"
+                    stroke-dasharray="430" stroke-dashoffset="430"
+                    marker-end="url(#arrowBlue)"/>
+
+              <!-- RETURNING ECHO — same path but dashed, going back -->
+              <line class="sl-in"
+                    x1="555" y1="378" x2="290" y2="50"
+                    stroke="#4a90e2" stroke-width="2"
+                    stroke-dasharray="6 5" opacity="0"
+                    marker-end="url(#arrowBlueOpen)"/>
+
+              <!-- ASSUMED on-axis line — straight down the central axis
+                   to the same depth as the off-axis reflector
+                   (round-trip distance ≈ 420 px → on-axis depth ≈ 420 px).
+                   This shows where the machine WILL plot the echo. -->
+              <line class="sl-assumed"
+                    x1="290" y1="50" x2="290" y2="420"
+                    stroke="#4a90e2" stroke-width="1.6"
+                    stroke-dasharray="3 4" opacity="0"/>
+
+              <!-- FALSE ECHO inside the anechoic cyst — appears as a
+                   curved bright streak (mimics how a real off-axis
+                   structure projects across the sector). -->
+              <path class="sl-false-echo"
+                    d="M 240 295 Q 280 315 325 305"
+                    stroke="#cfd2d6" stroke-width="2.4"
+                    fill="none" opacity="0"/>
+
+              <!-- labels -->
+              <text x="220" y="30" fill="#dfe3e8" font-size="11"
+                    font-family="Inter, sans-serif" font-weight="700"
+                    letter-spacing=".12em" opacity=".75">SECTOR VIEW</text>
+              <text x="225" y="222" fill="#dfe3e8" font-size="10"
+                    font-family="Inter, sans-serif" font-weight="600"
+                    opacity=".7">anechoic space</text>
+              <text x="455" y="350" fill="#dfe3e8" font-size="10"
+                    font-family="Inter, sans-serif" font-weight="600"
+                    opacity=".7">off-axis reflector</text>
+            </g>
+
+            <!-- ============== RIGHT: BEAM DIAGRAM ============== -->
+            <g transform="translate(610 40)">
+              <text x="-10" y="-8" fill="#dfe3e8" font-size="11"
+                    font-family="Inter, sans-serif" font-weight="700"
+                    letter-spacing=".12em" opacity=".75">BEAM SHAPE</text>
+
+              <!-- probe body -->
+              <rect x="38" y="0" width="44" height="36" rx="6" fill="#9ca0a4"/>
+              <rect x="46" y="36" width="28" height="14" fill="#5b5e62"/>
+
+              <!-- side lobes (green) — drawn FIRST so they sit BEHIND
+                   the main beam. They fan out from the probe face. -->
+              <path class="sl-side-beam left"
+                    d="M 50 50 L 70 50 L 25 240 L -10 200 Z"
+                    fill="#7fd49a" opacity=".55"/>
+              <path class="sl-side-beam right"
+                    d="M 50 50 L 70 50 L 95 240 L 130 200 Z"
+                    fill="#7fd49a" opacity=".55"/>
+
+              <!-- main beam (blue, vertical) drawn ON TOP -->
+              <path d="M 30 50 L 90 50 L 75 410 L 45 410 Z"
+                    fill="#bcd5f5" opacity=".75"/>
+              <!-- centre dashed axis -->
+              <line x1="60" y1="50" x2="60" y2="410"
+                    stroke="#4a90e2" stroke-width="1"
+                    stroke-dasharray="4 4" opacity=".6"/>
+
+              <!-- legend -->
+              <rect x="-5" y="430" width="14" height="10" fill="#bcd5f5" opacity=".75"/>
+              <text x="14" y="440" fill="#dfe3e8" font-size="10"
+                    font-family="Inter, sans-serif" opacity=".75">main beam</text>
+              <rect x="80" y="430" width="14" height="10" fill="#7fd49a" opacity=".75"/>
+              <text x="99" y="440" fill="#dfe3e8" font-size="10"
+                    font-family="Inter, sans-serif" opacity=".75">side lobes</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="explain">
+          <div class="mini-title">Mechanism</div>
+          <h3>Off-axis echoes plotted on-axis</h3>
+          <p>The transducer emits a main beam plus smaller side lobes (and grating lobes in array probes — shown in green on the right). When a side lobe travels off-axis and strikes a strong reflector — bowel gas, a wire, a calcified wall — the echo returns to the transducer along the same off-axis path.</p>
+          <p>The machine has no way to know the echo came from the side. It assumes every returning echo arrived from the main beam axis, so it plots the off-axis object at the <em>same depth</em>, <em>but on the central axis</em> — typically appearing as a curved bright streak inside an anechoic space (bladder, cyst, gallbladder).</p>
+          <div class="tag-row"><span class="tag">off-axis reflector</span><span class="tag">bowel gas</span><span class="tag">false internal echoes</span></div>
+          <div class="formula-box">Clinical clue: spurious curved echoes inside fluid-filled spaces. Reduce gain, change probe angle, or use harmonic imaging to confirm.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 6. SHADOWING / ENHANCEMENT ============== -->
+    <section id="attenuation">
+      <div class="section-title">
+        <h2>6. Shadowing and enhancement</h2>
+        <p>The machine expects predictable weakening of sound with depth. Some structures attenuate too much; some too little.</p>
+      </div>
+      <div class="artifact-card">
+        <div class="sim">
+          <span class="sim-title">Shadow vs enhancement</span>
+          <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 280 40 L 520 40 L 740 460 Q 400 510 60 460 Z" fill="url(#tissueGrad)"/>
+
+            <!-- LEFT: hyperechoic stone with posterior dark shadow -->
+            <ellipse cx="270" cy="195" rx="40" ry="32" fill="#d8dde2"/>
+            <circle class="focus-dot" cx="282" cy="199" r="4" fill="#ff5050"/>
+            <!-- shadow wedge — darker than tissue -->
+            <path d="M 235 220 L 305 220 L 330 480 L 215 480 Z" fill="#0a0b0d" opacity=".82"/>
+
+            <!-- RIGHT: anechoic cyst with posterior bright enhancement -->
+            <ellipse cx="540" cy="195" rx="42" ry="32" fill="#1a1c1f" stroke="#9ca0a4" stroke-width="1.5"/>
+            <circle class="focus-dot" cx="540" cy="195" r="4" fill="#ff5050"/>
+            <!-- enhancement wedge — brighter than tissue -->
+            <path d="M 502 225 L 578 225 L 605 475 L 480 475 Z" fill="#a8acb1" opacity=".55"/>
+
+            <!-- labels -->
+            <text x="195" y="490" fill="#dfe3e8" font-size="13" font-family="Inter, sans-serif" font-weight="600" opacity=".75">SHADOW</text>
+            <text x="498" y="490" fill="#dfe3e8" font-size="13" font-family="Inter, sans-serif" font-weight="600" opacity=".75">ENHANCEMENT</text>
+          </svg>
+        </div>
+
+        <div class="explain">
+          <div class="mini-title">Mechanism</div>
+          <h3>Posterior shadowing and posterior enhancement</h3>
+          <p><strong>Shadowing:</strong> bone, calcification, stone, or gas attenuates or reflects most of the beam. Tissue behind it receives little sound and appears dark — a clean wedge extending from the structure to the bottom of the screen.</p>
+          <p><strong>Enhancement:</strong> fluid attenuates less than surrounding tissue. The deeper tissue receives a stronger beam than the machine's TGC expects, so it looks brighter than expected.</p>
+          <div class="tag-row"><span class="tag">stone = shadow</span><span class="tag">fluid = enhancement</span><span class="tag">depth-gain assumption fails</span></div>
+          <div class="formula-box">Clinical clue: posterior enhancement supports cystic / fluid content; clean shadow supports calcification, stone, bone, or gas.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 7. SPEED ERROR ============== -->
+    <section id="speed">
+      <div class="section-title">
+        <h2>7. Speed error</h2>
+        <p>The scanner uses echo return time to calculate depth. Wrong speed means wrong depth.</p>
+      </div>
+      <div class="artifact-card">
+        <div class="sim">
+          <span class="sim-title">Speed error — line displacement</span>
+          <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 280 40 L 520 40 L 740 460 Q 400 510 60 460 Z" fill="url(#tissueGrad)"/>
+
+            <!-- a soft-tissue lesion (slower-than-average) sitting in the middle column -->
+            <ellipse cx="400" cy="220" rx="55" ry="50" fill="#7d8086" opacity=".95"/>
+            <circle class="focus-dot" cx="400" cy="240" r="4" fill="#ff5050"/>
+
+            <!-- the deep linear interface (e.g. diaphragm).
+                 LEFT and RIGHT segments stay at baseline depth.
+                 The MIDDLE segment, which lies behind the slower lesion,
+                 is plotted DEEPER (kinks down). -->
+
+            <!-- left segment, baseline depth -->
+            <path d="M 110 380 Q 220 374 335 376"
+                  stroke="#e2e6ea" stroke-width="5" fill="none" opacity=".95"/>
+            <!-- right segment, baseline depth -->
+            <path d="M 465 376 Q 580 374 690 380"
+                  stroke="#e2e6ea" stroke-width="5" fill="none" opacity=".95"/>
+            <!-- middle segment, animates downward to show step-off -->
+            <g class="se-kink">
+              <path d="M 335 376 L 465 376"
+                    stroke="#e2e6ea" stroke-width="5" fill="none" opacity=".95"/>
+            </g>
+
+            <!-- labels -->
+            <text x="120" y="470" fill="#dfe3e8" font-size="12" font-family="Inter, sans-serif" font-weight="600" opacity=".7">true depth</text>
+            <text x="380" y="470" fill="#dfe3e8" font-size="12" font-family="Inter, sans-serif" font-weight="600" opacity=".7">plotted deeper</text>
+            <text x="600" y="470" fill="#dfe3e8" font-size="12" font-family="Inter, sans-serif" font-weight="600" opacity=".7">true depth</text>
+          </svg>
+        </div>
+
+        <div class="explain">
+          <div class="mini-title">Mechanism</div>
+          <h3>Step-off at a deep linear boundary</h3>
+          <p>The machine assumes an average soft-tissue speed of 1540 m/s. Sound passing through a structure of different speed returns at the wrong time, and the scanner plots the deeper interface at the wrong depth.</p>
+          <p>The classic appearance is a smooth horizontal line (e.g. diaphragm, posterior bladder wall) that <em>kinks down</em> directly behind a slower lesion, because echoes from that column took longer than expected and were plotted deeper.</p>
+          <div class="tag-row"><span class="tag">time-of-flight error</span><span class="tag">slower medium → deeper plot</span><span class="tag">step-off appearance</span></div>
+          <div class="formula-box">Depth = assumed speed × return time ÷ 2<br>Wrong assumed speed → wrong displayed depth.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 8. RANGE AMBIGUITY ============== -->
+    <section id="ambiguity">
+      <div class="section-title">
+        <h2>8. Range ambiguity</h2>
+        <p>Delayed echoes from deep structures return during the next listening window and are displayed superficially.</p>
+      </div>
+      <div class="artifact-card">
+        <div class="sim">
+          <span class="sim-title">Range ambiguity</span>
+          <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+            <!-- the displayed sector (current listening window) — shallow -->
+            <path d="M 320 40 L 480 40 L 560 200 Q 400 230 240 200 Z" fill="url(#tissueGrad)"/>
+
+            <!-- real shallow lesion inside the displayed sector (light grey) -->
+            <ellipse cx="365" cy="120" rx="22" ry="18" fill="#a3a7ad"/>
+            <!-- false ghost in displayed sector (darker, plotted from late echo) -->
+            <ellipse class="amb-ghost" cx="445" cy="115" rx="20" ry="16" fill="#4a4d52"/>
+
+            <!-- focus dot below the displayed sector -->
+            <circle class="focus-dot" cx="400" cy="290" r="4" fill="#ff5050"/>
+
+            <!-- the REAL deep reflector well below the displayed window -->
+            <ellipse cx="445" cy="430" rx="26" ry="22" fill="#a3a7ad"/>
+
+            <!-- pulse going down past the displayed window (animated arrow) -->
+            <line class="amb-pulse-down" x1="400" y1="42" x2="445" y2="410"
+                  stroke="#4a90e2" stroke-width="2.5" stroke-dasharray="5 5"
+                  marker-end="url(#arrowBlue)"/>
+
+            <!-- labels -->
+            <text x="240" y="32" fill="#dfe3e8" font-size="12" font-family="Inter, sans-serif" font-weight="600" opacity=".75">DISPLAYED LISTENING WINDOW</text>
+            <text x="495" y="425" fill="#dfe3e8" font-size="11" font-family="Inter, sans-serif" font-weight="600" opacity=".7">deep real reflector</text>
+            <text x="475" y="100" fill="#dfe3e8" font-size="11" font-family="Inter, sans-serif" font-weight="600" opacity=".7">false ghost</text>
+          </svg>
+        </div>
+
+        <div class="explain">
+          <div class="mini-title">Mechanism</div>
+          <h3>Deep echo arrives too late</h3>
+          <p>For superficial imaging the scanner uses short pulse-repetition intervals and short listening windows, but a previous pulse may continue deep into tissue.</p>
+          <p>If a deep echo returns during the next pulse cycle, the scanner attributes it to that newer pulse and plots it in the superficial field — a ghost that does not belong there.</p>
+          <div class="tag-row"><span class="tag">late return</span><span class="tag">range ambiguity</span><span class="tag">superficial ghost</span></div>
+          <div class="formula-box">Clinical clue: a ghost-like structure appears too shallow and may disappear after reducing PRF or increasing depth.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== QUIZ ============== -->
+    <section id="quiz">
+      <div class="section-title">
+        <h2>Rapid revision</h2>
+        <p>Tap each card to reveal the pattern-recognition clue.</p>
+      </div>
+      <div class="quiz-grid">
+        <div class="quiz"><strong>Bright area deep to a cyst?</strong><button>Show answer</button><div class="answer">Posterior acoustic enhancement.</div></div>
+        <div class="quiz"><strong>Repeated equally-spaced horizontal lines?</strong><button>Show answer</button><div class="answer">Reverberation artifact.</div></div>
+        <div class="quiz"><strong>Lesion appears across the diaphragm?</strong><button>Show answer</button><div class="answer">Mirror artifact.</div></div>
+        <div class="quiz"><strong>Dark wedge from a cyst edge?</strong><button>Show answer</button><div class="answer">Refraction / edge shadowing.</div></div>
+        <div class="quiz"><strong>False echo inside bladder or cyst?</strong><button>Show answer</button><div class="answer">Side lobe or grating lobe artifact.</div></div>
+        <div class="quiz"><strong>Vertical streak from gas bubbles?</strong><button>Show answer</button><div class="answer">Ring-down artifact.</div></div>
+      </div>
+    </section>
+
+    <section id="summary" class="footer">
+      <h2>One-line summary</h2>
+      <p>
+        Ultrasound artifacts are diagnostic clues produced by predictable violations of machine assumptions: constant speed, straight-line travel, inline echo return, single reflection, and linear attenuation. Mastering them helps you avoid false diagnoses and use artifacts clinically — especially in lung ultrasound, FAST, biliary scans, vascular scans, and ICU bedside imaging.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    // Quiz reveal
+    document.querySelectorAll('.quiz button').forEach(btn => {
+      btn.addEventListener('click', () => btn.closest('.quiz').classList.toggle('open'));
+    });
+  </script>
+</body>
+</html>
