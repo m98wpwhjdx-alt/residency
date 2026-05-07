@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medical Reference Index</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0d1318;
+    --border: #1a2530;
+    --accent: #00d4ff;
+    --accent-dim: rgba(0, 212, 255, 0.08);
+    --accent-glow: rgba(0, 212, 255, 0.25);
+    --text-primary: #e8eef4;
+    --text-secondary: #5a7a8a;
+    --text-muted: #2a4050;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.06) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 80px 32px 120px;
+  }
+
+  .header {
+    margin-bottom: 72px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .eyebrow::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    margin-top: 12px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+    margin-bottom: 48px;
+    animation: fadeIn 1s ease 0.4s both;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    animation: fadeIn 0.8s ease 0.3s both;
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 22px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.25s, background 0.25s, transform 0.2s;
+    overflow: hidden;
+    animation: slideUp 0.6s ease both;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.18s; }
+  .card:nth-child(3) { animation-delay: 0.26s; }
+  .card:nth-child(4) { animation-delay: 0.34s; }
+  .card:nth-child(5) { animation-delay: 0.42s; }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.3s ease;
+  }
+
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-dim);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .card:hover {
+    border-color: rgba(0, 212, 255, 0.3);
+    transform: translateX(4px);
+  }
+
+  .card:hover::before { transform: scaleY(1); }
+  .card:hover::after { opacity: 1; }
+
+  .card-index {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    min-width: 24px;
+    font-weight: 500;
+    transition: color 0.25s;
+    flex-shrink: 0;
+  }
+
+  .card:hover .card-index { color: var(--accent); }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.25s, background 0.25s;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card:hover .card-icon {
+    border-color: rgba(0,212,255,0.4);
+    background: var(--accent-dim);
+  }
+
+  .card-icon svg {
+    width: 16px; height: 16px;
+    stroke: var(--text-secondary);
+    fill: none;
+    stroke-width: 1.5;
+    transition: stroke 0.25s;
+  }
+
+  .card:hover .card-icon svg { stroke: var(--accent); }
+
+  .card-info {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-name {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    transition: color 0.25s;
+  }
+
+  .card:hover .card-name { color: var(--accent); }
+
+  .card-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .card-arrow {
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.25s, transform 0.25s;
+    color: var(--accent);
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .card:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    animation: fadeIn 1s ease 0.6s both;
+  }
+
+  .footer-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--accent-glow); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 6px transparent; }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <p class="eyebrow">Reference Library</p>
+    <h1>Medical <em>Index</em></h1>
+    <p class="subtitle">Clinical reference documents — select to open</p>
+  </header>
+
+  <div class="divider"></div>
+
+  <div class="meta">
+    <span>05 DOCUMENTS</span>
+    <span>HTML REFERENCE FILES</span>
+  </div>
+
+  <div class="cards">
+
+    <a class="card" href="Ultrasound Artifact.html">
+      <span class="card-index">01</span>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Ultrasound Artifact</div>
+        <div class="card-desc">Sonographic artifact identification & classification</div>
+      </div>
+      <span class="card-arrow">&#8594;</span>
+    </a>
+
+    <a class="card" href="cvp.html">
+      <span class="card-index">02</span>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <div class="card-info">
+        <div class="card-name">CVP</div>
+        <div class="card-desc">Central venous pressure — monitoring & interpretation</div>
+      </div>
+      <span class="card-arrow">&#8594;</span>
+    </a>
+
+    <a class="card" href="stoelting">
+      <span class="card-index">03</span>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Stoelting</div>
+        <div class="card-desc">Pharmacology & physiology reference</div>
+      </div>
+      <span class="card-arrow">&#8594;</span>
+    </a>
+
+    <a class="card" href="stoelting.html">
+      <span class="card-index">04</span>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Stoelting.html</div>
+        <div class="card-desc">Extended HTML version — drug interactions & anesthesia</div>
+      </div>
+      <span class="card-arrow">&#8594;</span>
+    </a>
+
+    <a class="card" href="ultrasound.html">
+      <span class="card-index">05</span>
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 010 8.49m-8.48-.01a6 6 0 010-8.49m11.31-2.82a10 10 0 010 14.14m-14.14 0a10 10 0 010-14.14"/></svg>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Ultrasound</div>
+        <div class="card-desc">Diagnostic ultrasound — techniques & protocols</div>
+      </div>
+      <span class="card-arrow">&#8594;</span>
+    </a>
+
+  </div>
+
+  <footer class="footer">
+    <span>MEDICAL REFERENCE INDEX</span>
+    <div class="footer-dot"></div>
+    <span>5 FILES INDEXED</span>
+  </footer>
+</div>
+</body>
+</html>
