@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estimating RVSP and PASP Using the TR Jet</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #5b6475;
+      --border: #dde3ee;
+      --accent: #1d5fd0;
+      --accent-soft: #e8f0ff;
+      --warning: #b35a00;
+      --warning-soft: #fff4e5;
+      --success: #087f5b;
+      --success-soft: #e6f7f1;
+      --danger: #b42318;
+      --danger-soft: #fff0ef;
+      --code-bg: #101828;
+      --code-text: #f9fafb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 18px 56px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #123f8c, #1d5fd0);
+      color: white;
+      border-radius: 24px;
+      padding: 34px;
+      box-shadow: 0 18px 45px rgba(17, 63, 140, 0.22);
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    header p {
+      max-width: 820px;
+      margin: 0;
+      color: rgba(255,255,255,0.9);
+      font-size: 1.08rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      grid-column: span 12;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+    }
+
+    .half { grid-column: span 6; }
+    .third { grid-column: span 4; }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.45rem;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin: 22px 0 8px;
+      font-size: 1.08rem;
+    }
+
+    p { margin: 0 0 12px; }
+
+    ul, ol {
+      padding-left: 1.25rem;
+      margin: 10px 0 0;
+    }
+
+    li { margin: 7px 0; }
+
+    .lead {
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .formula {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 16px;
+      padding: 18px;
+      margin: 16px 0;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      overflow-x: auto;
+      font-size: 1rem;
+    }
+
+    .callout {
+      border-radius: 16px;
+      padding: 16px 18px;
+      border: 1px solid transparent;
+      margin: 14px 0;
+    }
+
+    .callout.blue { background: var(--accent-soft); border-color: #c8dcff; }
+    .callout.orange { background: var(--warning-soft); border-color: #ffd8a8; }
+    .callout.green { background: var(--success-soft); border-color: #b8ead8; }
+    .callout.red { background: var(--danger-soft); border-color: #ffc9c5; }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: white;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef3fb;
+      font-weight: 700;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.82rem;
+      margin-bottom: 10px;
+    }
+
+    .example {
+      background: #fbfcff;
+      border: 1px dashed #b8c6df;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+
+    .checklist {
+      columns: 2;
+      column-gap: 34px;
+    }
+
+    .checklist li { break-inside: avoid; }
+
+    .bottom-line {
+      background: linear-gradient(135deg, #0b3228, #087f5b);
+      color: white;
+      border: 0;
+    }
+
+    .bottom-line .formula {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    footer {
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.9rem;
+      padding-top: 24px;
+    }
+
+    @media (max-width: 800px) {
+      .half, .third { grid-column: span 12; }
+      header, .card { padding: 22px; }
+      .checklist { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Estimating RVSP and PASP Using the Tricuspid Regurgitation Jet</h1>
+      <p>A practical ICU-oriented guide to estimating right ventricular systolic pressure and, by inference, pulmonary artery systolic pressure using continuous-wave Doppler echocardiography.</p>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <span class="pill">ICU framing</span>
+        <h2>What question are we asking?</h2>
+        <p>The tricuspid regurgitation jet provides a non-invasive way of asking: <strong>“What pressure is the RV generating during systole?”</strong></p>
+        <p>If there is no right ventricular outflow tract obstruction or pulmonic stenosis, right ventricular systolic pressure approximates pulmonary artery systolic pressure.</p>
+      </article>
+
+      <article class="card half">
+        <h2>1. Core physiology</h2>
+        <p>During systole, if tricuspid regurgitation is present, blood flows backward from the right ventricle into the right atrium. The velocity of that regurgitant jet reflects the pressure gradient between the RV and RA.</p>
+        <div class="formula">ΔP<sub>RV-RA</sub> = 4V²</div>
+        <p>Where <strong>V</strong> is the peak TR velocity in m/s.</p>
+        <div class="formula">RVSP = 4(TRV)² + RAP</div>
+        <div class="formula">PASP ≈ RVSP</div>
+        <p class="lead">This is the simplified Bernoulli approach used in echo estimation of pulmonary artery systolic pressure.</p>
+      </article>
+
+      <article class="card half">
+        <h2>2. Why RAP is added</h2>
+        <p>The TR jet gives only the pressure gradient between the RV and RA.</p>
+        <div class="example">
+          <p><strong>Example:</strong> Peak TR velocity = 3.0 m/s</p>
+          <div class="formula">4 × 3² = 36 mmHg</div>
+          <p>This means RV systolic pressure is 36 mmHg above right atrial pressure.</p>
+          <p>If estimated RAP is 10 mmHg:</p>
+          <div class="formula">RVSP = 36 + 10 = 46 mmHg</div>
+          <p>Estimated PASP is about <strong>46 mmHg</strong>, assuming no RVOT obstruction.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>3. Estimating RAP from the IVC</h2>
+        <p>Echo commonly estimates RAP from IVC diameter and inspiratory collapsibility. A classic ASE-style framework is:</p>
+        <table>
+          <thead><tr><th>IVC finding</th><th>Estimated RAP</th></tr></thead>
+          <tbody>
+            <tr><td>IVC ≤ 2.1 cm and collapses &gt; 50% with sniff</td><td>~3 mmHg</td></tr>
+            <tr><td>IVC &gt; 2.1 cm and collapses &lt; 50%</td><td>~15 mmHg</td></tr>
+            <tr><td>Intermediate findings</td><td>~8 mmHg</td></tr>
+          </tbody>
+        </table>
+        <div class="callout orange"><strong>ICU caution</strong>In ventilated ICU patients, IVC-derived RAP is a rough hemodynamic estimate, not a precise number. Mechanical ventilation, high PEEP, elevated intra-abdominal pressure, RV dysfunction, severe TR, and poor inspiratory effort can distort interpretation.</div>
+      </article>
+
+      <article class="card half">
+        <h2>4. Worked example: mild elevation</h2>
+        <p><strong>TRV = 2.6 m/s</strong><br><strong>RAP = 8 mmHg</strong></p>
+        <div class="formula">RVSP = 4(2.6)² + 8<br>RVSP = 4(6.76) + 8<br>RVSP = 27 + 8 = 35 mmHg</div>
+        <p>Estimated PASP ≈ <strong>35 mmHg</strong>.</p>
+        <p class="lead">This is borderline or mildly elevated, depending on age, clinical setting, and other echo probability markers.</p>
+      </article>
+
+      <article class="card half">
+        <h2>Worked example: significant PH signal</h2>
+        <p><strong>TRV = 3.8 m/s</strong><br><strong>RAP = 15 mmHg</strong></p>
+        <div class="formula">RVSP = 4(3.8)² + 15<br>RVSP = 4(14.44) + 15<br>RVSP = 57.8 + 15 = 72.8 mmHg</div>
+        <p>Estimated PASP ≈ <strong>73 mmHg</strong>.</p>
+        <p class="lead">This is a high RV systolic pressure and may strongly suggest significant pulmonary hypertension or acute RV afterload elevation in the right clinical context.</p>
+      </article>
+
+      <article class="card">
+        <h2>5. How to acquire the TR signal properly</h2>
+        <p>For bedside echo, acquisition error is a major source of misclassification.</p>
+        <ul>
+          <li>Use continuous-wave Doppler through the TR jet.</li>
+          <li>Try multiple windows: apical 4-chamber, parasternal RV inflow, parasternal short-axis, subcostal 4-chamber, and modified low parasternal views.</li>
+          <li>Align the Doppler cursor as parallel as possible to the regurgitant jet.</li>
+          <li>Measure peak velocity at the outer edge of the densest envelope.</li>
+          <li>Avoid measuring faint noise outside the true spectral envelope.</li>
+          <li>Measure at end-expiration when feasible, especially in ventilated patients.</li>
+          <li>In atrial fibrillation, average several representative beats.</li>
+          <li>With marked respiratory variation, note the ventilatory phase.</li>
+        </ul>
+        <div class="callout green"><strong>A good TR signal is:</strong>Dense enough to trace confidently, complete with a clear systolic envelope, and reproducible over several beats.</div>
+      </article>
+
+      <article class="card">
+        <h2>6. Common ICU pitfalls</h2>
+        <div class="grid">
+          <div class="card third"><h3>A. Poor TR envelope</h3><p>Poor alignment or an incomplete envelope underestimates PASP. No measurable TR jet does not exclude pulmonary hypertension.</p></div>
+          <div class="card third"><h3>B. Severe TR</h3><p>With severe or free TR, RV and RA pressures may equalize early. A triangular, low-velocity envelope may underestimate RVSP.</p></div>
+          <div class="card third"><h3>C. RV failure</h3><p>A failing RV may be unable to generate high pressure. A modest TRV in shock with a dilated, poorly functioning RV is not reassuring.</p></div>
+          <div class="card third"><h3>D. Mechanical ventilation</h3><p>PEEP, dynamic hyperinflation, high mean airway pressure, and increased intrathoracic pressure affect venous return and IVC behavior.</p></div>
+          <div class="card third"><h3>E. RVOT obstruction</h3><p>RVSP equals PASP only if there is no significant gradient between the RV and pulmonary artery.</p></div>
+          <div class="card third"><h3>Key implication</h3><div class="formula">RVSP ≠ PASP</div><p>In pulmonic stenosis, RVOT obstruction, or conduit obstruction, RVSP may be high while PA pressure is not equivalently high.</p></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>7. Severity interpretation</h2>
+        <table>
+          <thead><tr><th>Estimated PASP/RVSP</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td>~35–45 mmHg</td><td>Mild elevation</td></tr>
+            <tr><td>~46–60 mmHg</td><td>Moderate elevation</td></tr>
+            <tr><td>&gt;60 mmHg</td><td>Severe elevation</td></tr>
+          </tbody>
+        </table>
+        <div class="callout blue"><strong>Guideline-style interpretation</strong>Echo should estimate the probability of pulmonary hypertension rather than diagnose it from PASP alone. TR velocity should be interpreted alongside RV size/function, septal flattening, pulmonary artery size, RA size, IVC/RAP, RVOT acceleration time, and clinical context. Right-heart catheterization is required when definitive diagnosis is needed.</div>
+      </article>
+
+      <article class="card">
+        <h2>8. ICU bedside interpretation</h2>
+        <h3>Acute PE</h3>
+        <p>You may see RV dilation, McConnell-type regional dysfunction, septal flattening, elevated TRV, and a dilated IVC. But if the RV is crashing, RVSP may not be very high because the RV cannot generate pressure indefinitely.</p>
+        <h3>ARDS or hypoxic pulmonary vasoconstriction</h3>
+        <p>PASP may rise due to hypoxia, hypercapnia, acidosis, high PEEP, overdistension, pulmonary microthrombosis, or vasoconstriction. Management may include optimizing oxygenation, pH, lung-protective ventilation, avoiding excessive driving pressure or PEEP, and considering pulmonary vasodilators in selected RV failure physiology.</p>
+        <h3>Left heart disease</h3>
+        <p>Elevated PASP with LA enlargement, LV systolic or diastolic dysfunction, MR, or high E/e′ suggests post-capillary PH. The initial treatment target is left-sided filling pressure and the underlying cardiac lesion, not pulmonary vasodilation.</p>
+        <h3>Sepsis</h3>
+        <p>RV dysfunction in sepsis may coexist with elevated pulmonary vascular resistance, high ventilatory pressures, myocardial depression, and volume overload. RVSP alone is less useful than the full RV phenotype: size, systolic function, septal position, TAPSE, S′, FAC, TR severity, and venous congestion.</p>
+      </article>
+
+      <article class="card">
+        <h2>9. Practical bedside checklist</h2>
+        <p>When you see a reported RVSP or PASP, ask:</p>
+        <ol class="checklist">
+          <li>Was the TR envelope adequate?</li>
+          <li>What was the actual TR velocity?</li>
+          <li>What RAP was assumed?</li>
+          <li>Is the patient spontaneously breathing or ventilated?</li>
+          <li>Is there severe TR?</li>
+          <li>Is there RVOT obstruction or pulmonic stenosis?</li>
+          <li>Is the RV dilated or failing?</li>
+          <li>Is the septum flattened in systole, diastole, or both?</li>
+          <li>Does the clinical scenario suggest acute versus chronic RV afterload?</li>
+          <li>Would this result change management enough to need formal echo or right-heart catheterization?</li>
+        </ol>
+      </article>
+
+      <article class="card bottom-line">
+        <h2>10. Bottom line</h2>
+        <p>The key equation is:</p>
+        <div class="formula">RVSP/PASP = 4(TRV)² + RAP</div>
+        <p>It is powerful because TR velocity is a surrogate for the RV–RA systolic gradient. But in the ICU, the number is only as good as the Doppler envelope, RAP estimate, and physiologic assumptions.</p>
+      </article>
+    </section>
+
+    <footer>Educational ICU echocardiography reference. Interpret in full clinical context.</footer>
+  </main>
+</body>
+</html>
