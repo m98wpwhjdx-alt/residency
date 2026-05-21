@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Renal Tubular Acidosis for Intensivists</title>
+  <style>
+    :root {
+      --bg: #0f172a; --card: #ffffff; --ink: #0f172a; --muted: #64748b;
+      --accent: #0ea5e9; --accent2: #22c55e; --warn: #f59e0b; --danger: #ef4444;
+      --line: #e2e8f0; --soft: #f8fafc; --shadow: 0 14px 35px rgba(15, 23, 42, 0.15);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #07111f 0%, #0f172a 45%, #1e293b 100%);
+      color: #e5e7eb;
+      line-height: 1.5;
+    }
+    header { padding: 42px 22px 28px; max-width: 1180px; margin: 0 auto; }
+    .hero { display: grid; grid-template-columns: 1.4fr 0.9fr; gap: 24px; align-items: stretch; }
+    .hero-card, .mini-dashboard, .section, .modal-content {
+      background: rgba(255,255,255,0.96); color: var(--ink); border-radius: 24px; box-shadow: var(--shadow);
+    }
+    .hero-card { padding: 34px; }
+    .eyebrow { display: inline-flex; padding: 6px 12px; border-radius: 999px; background: #e0f2fe; color: #075985; font-weight: 800; font-size: 13px; }
+    h1 { font-size: clamp(34px, 5vw, 64px); line-height: 0.96; letter-spacing: -0.05em; margin: 22px 0 18px; }
+    .subtitle { font-size: 18px; color: #334155; max-width: 820px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    button, input { font: inherit; }
+    button {
+      border: 0; border-radius: 14px; background: var(--accent); color: white; padding: 12px 16px;
+      font-weight: 850; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 8px 18px rgba(14,165,233,0.24);
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(14,165,233,0.28); }
+    button.secondary { background: #334155; box-shadow: none; }
+    button.green { background: var(--accent2); box-shadow: 0 8px 18px rgba(34,197,94,0.2); }
+    button.ghost { background: #f1f5f9; color: #0f172a; box-shadow: none; }
+    .mini-dashboard { padding: 22px; display: grid; gap: 14px; }
+    .stat { background: var(--soft); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
+    .stat b { display:block; font-size: 24px; }
+    .stat span { color: var(--muted); font-size: 13px; }
+    nav { position: sticky; top: 0; z-index: 20; background: rgba(15,23,42,0.82); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .nav-inner { max-width: 1180px; margin: 0 auto; display: flex; gap: 8px; overflow-x: auto; padding: 10px 18px; }
+    .nav-inner a { color: #e2e8f0; text-decoration: none; white-space: nowrap; padding: 9px 12px; border-radius: 999px; font-weight: 750; font-size: 14px; }
+    .nav-inner a:hover { background: rgba(255,255,255,0.12); }
+    main { max-width: 1180px; margin: 0 auto; padding: 26px 18px 70px; }
+    .section { padding: 26px; margin: 22px 0; }
+    .section h2 { margin: 0 0 12px; font-size: 30px; letter-spacing: -0.03em; }
+    .lead { color: #334155; font-size: 17px; margin-top: 0; }
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { border: 1px solid var(--line); border-radius: 20px; padding: 18px; background: white; }
+    .card h3 { margin: 0 0 8px; font-size: 20px; }
+    .card p { color: #475569; margin: 7px 0; }
+    .badge { display: inline-flex; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 800; background: #e2e8f0; color: #334155; margin: 2px 4px 2px 0; }
+    .badge.blue { background:#e0f2fe; color:#075985; } .badge.green { background:#dcfce7; color:#166534; } .badge.amber { background:#fef3c7; color:#92400e; } .badge.red { background:#fee2e2; color:#991b1b; } .badge.purple { background:#ede9fe; color:#5b21b6; }
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 16px; }
+    .flow-step { position: relative; border: 1px solid var(--line); border-radius: 18px; padding: 16px; background: #f8fafc; cursor: pointer; min-height: 142px; }
+    .flow-step:hover { outline: 3px solid #bae6fd; }
+    .flow-step .num { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--accent); color: white; font-weight: 900; margin-bottom: 8px; }
+    .flow-step h3 { margin: 0 0 6px; font-size: 16px; }
+    .flow-step p { margin: 0; color: #475569; font-size: 14px; }
+    .tabs { display:flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+    .tab { background:#f1f5f9; color:#0f172a; box-shadow:none; }
+    .tab.active { background: var(--accent); color:white; }
+    .tab-panel, .case-card { display: none; }
+    .tab-panel.active, .case-card.active { display: block; }
+    table { border-collapse: collapse; width: 100%; overflow: hidden; border-radius: 16px; font-size: 14px; }
+    th, td { border: 1px solid var(--line); padding: 11px; vertical-align: top; }
+    th { background: #f1f5f9; text-align: left; } td { background: white; }
+    .calculator { background: #f8fafc; border: 1px solid var(--line); border-radius: 22px; padding: 18px; }
+    .form-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    label { display:block; font-weight: 800; color:#334155; font-size: 13px; margin-bottom: 5px; }
+    input { width: 100%; padding: 11px 12px; border: 1px solid #cbd5e1; border-radius: 12px; background: white; color: #0f172a; }
+    .result { margin-top: 14px; border-radius: 18px; padding: 16px; background: white; border: 1px solid var(--line); }
+    .result strong { font-size: 20px; } .result .interpretation { color: #334155; margin-top: 8px; }
+    .option-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; margin-top: 12px; }
+    .option { border: 1px solid var(--line); border-radius: 14px; padding: 13px; background: #f8fafc; cursor: pointer; font-weight: 750; }
+    .option:hover { outline: 3px solid #bae6fd; } .option.correct { background:#dcfce7; border-color:#86efac; } .option.wrong { background:#fee2e2; border-color:#fecaca; }
+    .pearl { border-left: 6px solid var(--accent); background:#f0f9ff; padding: 14px 16px; border-radius: 14px; color:#0c4a6e; margin: 12px 0; }
+    .dangerbox { border-left-color: var(--danger); background:#fef2f2; color:#7f1d1d; } .warnbox { border-left-color: var(--warn); background:#fffbeb; color:#78350f; } .greenbox { border-left-color: var(--accent2); background:#f0fdf4; color:#14532d; }
+    .accordion-item { border:1px solid var(--line); border-radius: 18px; margin: 10px 0; overflow:hidden; }
+    .accordion-title { padding: 14px 16px; background:#f8fafc; cursor:pointer; font-weight:900; display:flex; justify-content:space-between; gap:12px; }
+    .accordion-body { display:none; padding: 16px; background:white; color:#334155; } .accordion-item.open .accordion-body { display:block; }
+    .modal { display:none; position: fixed; inset:0; z-index:50; background: rgba(2,6,23,0.72); padding: 24px; overflow:auto; }
+    .modal.show { display:block; }
+    .modal-content { max-width: 760px; margin: 8vh auto; padding: 24px; }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .close { background:#f1f5f9; color:#0f172a; box-shadow:none; }
+    .flashcard { min-height: 210px; border: 1px solid var(--line); border-radius: 22px; padding: 24px; background: linear-gradient(180deg, #ffffff, #f8fafc); cursor:pointer; display:flex; align-items:center; justify-content:center; text-align:center; font-size: 22px; font-weight: 900; flex-direction: column; }
+    .flashcard small { display:block; margin-top:10px; color:#64748b; font-size:13px; font-weight:700; }
+    .test-panel { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; background: #0f172a; color: #e2e8f0; border-radius: 16px; padding: 14px; white-space: pre-wrap; }
+    .footer-note { color:#cbd5e1; text-align:center; max-width: 900px; margin: 26px auto 0; font-size: 14px; }
+    @media (max-width: 900px) { .hero, .grid.two, .grid.three, .flow, .form-grid { grid-template-columns: 1fr; } .option-grid { grid-template-columns: 1fr; } .hero-card { padding: 24px; } .section { padding: 20px; } }
+    @media print { body { background:white; color:#0f172a; } nav, .hero-actions, button, .modal, #tests { display:none !important; } .section, .hero-card, .mini-dashboard { box-shadow:none; border:1px solid #ddd; } .tab-panel, .case-card { display:block !important; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <div class="hero-card">
+        <span class="eyebrow">ICU Acid–Base Module</span>
+        <h1>Renal Tubular Acidosis for Intensivists</h1>
+        <p class="subtitle">A bedside-oriented interactive guide to normal-anion-gap metabolic acidosis, urine indices, RTA subtypes, ICU mimics, and management decisions.</p>
+        <div class="hero-actions">
+          <button type="button" onclick="document.querySelector('#diagnostic').scrollIntoView({behavior:'smooth'})">Start diagnostic workflow</button>
+          <button type="button" class="green" onclick="document.querySelector('#calculator').scrollIntoView({behavior:'smooth'})">Open bedside calculator</button>
+          <button type="button" class="secondary" onclick="window.print()">Print handout</button>
+        </div>
+      </div>
+      <div class="mini-dashboard">
+        <div class="stat"><b>NAGMA</b><span>RTA is usually hyperchloremic normal-anion-gap metabolic acidosis.</span></div>
+        <div class="stat"><b>K⁺ sorts the room</b><span>Hypokalemia suggests type 1 or 2; hyperkalemia points to type 4 or renal failure/drugs.</span></div>
+        <div class="stat"><b>Urine NH₄⁺ is the target</b><span>Use urine anion gap or urine osmolal gap only as surrogates, not absolutes.</span></div>
+      </div>
+    </div>
+  </header>
+
+  <nav><div class="nav-inner">
+    <a href="#bigpicture">Big picture</a><a href="#diagnostic">Workflow</a><a href="#subtypes">Subtypes</a><a href="#calculator">Calculator</a><a href="#cases">Cases</a><a href="#management">Management</a><a href="#pitfalls">Pitfalls</a><a href="#flashcards">Flashcards</a><a href="#tests">Self-tests</a>
+  </div></nav>
+
+  <main>
+    <section class="section" id="bigpicture">
+      <h2>1. What RTA means in the ICU</h2>
+      <p class="lead">RTA is a renal tubular failure of acid handling with relatively preserved glomerular filtration. In critical care it appears as persistent hyperchloremic metabolic acidosis that does not behave like lactic acidosis, ketoacidosis, renal failure, or diarrheal bicarbonate loss.</p>
+      <div class="grid three">
+        <div class="card"><h3>The acid–base phenotype</h3><p><span class="badge blue">Low HCO₃⁻</span><span class="badge blue">Normal AG</span><span class="badge blue">High Cl⁻</span></p><p>Confirm with pH/PaCO₂ and calculate corrected anion gap. Mixed disorders are common in shock, sepsis, DKA recovery, and saline resuscitation.</p></div>
+        <div class="card"><h3>The renal question</h3><p><span class="badge green">Can the kidney excrete NH₄⁺?</span></p><p>Appropriate response to metabolic acidosis is increased ammonium excretion. RTA implies an inappropriately low renal acid excretion response.</p></div>
+        <div class="card"><h3>The ICU context</h3><p><span class="badge amber">Drugs</span><span class="badge amber">AKI/CKD</span><span class="badge amber">Obstruction</span><span class="badge amber">Autoimmune disease</span></p><p>Medication and renal perfusion context often matter more than elegant textbook labels.</p></div>
+      </div>
+      <div class="pearl">Bedside anchor: Do not diagnose RTA from bicarbonate alone. First prove metabolic acidosis, correct the anion gap for albumin, and exclude common non-renal bicarbonate loss.</div>
+    </section>
+
+    <section class="section" id="diagnostic">
+      <h2>2. Diagnostic workflow</h2>
+      <p class="lead">Click each step for ICU-specific details.</p>
+      <div class="flow">
+        <div class="flow-step" onclick="window.openModal('Step 1: Confirm the disorder', 'Confirm low pH or appropriate respiratory compensation. A low serum bicarbonate with alkalemic pH may reflect chronic respiratory alkalosis, not RTA. Calculate expected PaCO₂ using Winter’s formula: PaCO₂ ≈ 1.5 × HCO₃⁻ + 8 ± 2.')"><span class="num">1</span><h3>Confirm metabolic acidosis</h3><p>ABG/VBG + compensation check.</p></div>
+        <div class="flow-step" onclick="window.openModal('Step 2: Check the corrected anion gap', 'Correct AG for hypoalbuminemia: corrected AG = observed AG + 2.5 × (4 − albumin in g/dL). A hidden high-gap acidosis plus saline can masquerade as NAGMA.')"><span class="num">2</span><h3>Correct the AG</h3><p>Albumin-corrected anion gap.</p></div>
+        <div class="flow-step" onclick="window.openModal('Step 3: Exclude common mimics', 'Common ICU mimics: diarrhea, high-output ileostomy, pancreatic/biliary drainage, ureterosigmoidostomy, large-volume normal saline, acetazolamide, toluene, early renal failure, post-hypocapnia, and recovery phase of ketoacidosis.')"><span class="num">3</span><h3>Exclude mimics</h3><p>GI loss, chloride load, drugs.</p></div>
+        <div class="flow-step" onclick="window.openModal('Step 4: Use potassium as the first branch', 'Hypokalemia: think distal type 1, proximal type 2, diarrhea, amphotericin B, toluene. Hyperkalemia: think type 4 RTA, CKD/AKI, ACEi/ARB, trimethoprim, heparin, spironolactone/eplerenone, NSAIDs, calcineurin inhibitors, adrenal insufficiency.')"><span class="num">4</span><h3>Branch by K⁺</h3><p>Hypokalemic vs hyperkalemic NAGMA.</p></div>
+        <div class="flow-step" onclick="window.openModal('Step 5: Estimate ammonium excretion', 'Urine anion gap = UNa + UK − UCl. Negative UAG suggests high NH₄Cl excretion, more consistent with extrarenal bicarbonate loss. Positive or inappropriately non-negative UAG suggests impaired renal acid excretion. Urine osmolal gap may be more useful when unmeasured urinary anions confound the UAG.')"><span class="num">5</span><h3>Urine indices</h3><p>pH, UAG, UOG; interpret cautiously.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="subtypes">
+      <h2>3. RTA subtype map</h2>
+      <p class="lead">Use the tabs to compare mechanisms, labs, causes, and ICU implications.</p>
+      <div class="tabs" role="tablist" aria-label="RTA subtype tabs">
+        <button type="button" class="tab active" onclick="window.showTab(event,'type1')">Type 1: distal</button>
+        <button type="button" class="tab" onclick="window.showTab(event,'type2')">Type 2: proximal</button>
+        <button type="button" class="tab" onclick="window.showTab(event,'type4')">Type 4: hyperkalemic</button>
+        <button type="button" class="tab" onclick="window.showTab(event,'incomplete')">Incomplete distal</button>
+      </div>
+      <div class="tab-panel active" id="type1"><div class="grid two"><div class="card"><h3>Core defect</h3><p>Impaired distal H⁺ secretion by alpha-intercalated cells. The urine remains inappropriately alkaline despite systemic acidosis.</p><p><span class="badge red">Urine pH usually &gt;5.5</span><span class="badge amber">Hypokalemia common</span></p></div><div class="card"><h3>ICU clues</h3><p>Severe hypokalemia, nephrolithiasis/nephrocalcinosis history, autoimmune disease, amphotericin B exposure, obstructive uropathy, kidney transplant, toluene exposure.</p></div></div><div class="pearl dangerbox">Distal RTA can produce life-threatening hypokalemia. Correct K⁺ before or alongside bicarbonate; alkali therapy can drive potassium lower.</div></div>
+      <div class="tab-panel" id="type2"><div class="grid two"><div class="card"><h3>Core defect</h3><p>Reduced proximal bicarbonate reabsorption. Once serum bicarbonate falls below the reduced threshold, urine may acidify.</p><p><span class="badge purple">Variable urine pH</span><span class="badge amber">Hypokalemia common</span></p></div><div class="card"><h3>ICU clues</h3><p>Fanconi syndrome, acetazolamide/topiramate, ifosfamide, tenofovir, outdated tetracyclines, monoclonal gammopathy, heavy metals. Look for glycosuria with normal glucose, phosphaturia, uricosuria, aminoaciduria.</p></div></div><div class="pearl warnbox">Proximal RTA often needs large alkali doses because administered bicarbonate is wasted in urine until the proximal threshold is exceeded.</div></div>
+      <div class="tab-panel" id="type4"><div class="grid two"><div class="card"><h3>Core defect</h3><p>Hypoaldosteronism or aldosterone resistance causes impaired distal Na⁺ reabsorption, hyperkalemia, and reduced ammoniagenesis.</p><p><span class="badge red">Hyperkalemia</span><span class="badge green">Urine pH often &lt;5.5</span></p></div><div class="card"><h3>ICU clues</h3><p>Diabetes, CKD, tubulointerstitial disease, obstructive uropathy, ACEi/ARB, mineralocorticoid receptor antagonists, heparin, trimethoprim, pentamidine, NSAIDs, calcineurin inhibitors.</p></div></div><div class="pearl greenbox">Type 4 is usually the most ICU-relevant subtype because hyperkalemia changes immediate risk. Treat potassium first when ECG changes or severe elevation are present.</div></div>
+      <div class="tab-panel" id="incomplete"><div class="grid two"><div class="card"><h3>Core defect</h3><p>Impaired maximal urine acidification without overt systemic metabolic acidosis at baseline.</p><p><span class="badge blue">Stone phenotype</span><span class="badge blue">Normal serum HCO₃⁻ possible</span></p></div><div class="card"><h3>ICU relevance</h3><p>Usually not the main explanation for acute ICU acidosis. Consider when recurrent calcium phosphate stones, hypocitraturia, or nephrocalcinosis dominate history.</p></div></div></div>
+      <h3>Pattern recognition table</h3>
+      <table><thead><tr><th>Feature</th><th>Type 1 distal</th><th>Type 2 proximal</th><th>Type 4 hyperkalemic</th><th>Diarrhea / GI HCO₃⁻ loss</th></tr></thead><tbody><tr><td>Serum K⁺</td><td>Low</td><td>Low</td><td>High</td><td>Low or normal</td></tr><tr><td>Urine pH during acidosis</td><td>Usually &gt;5.5</td><td>Variable; can be &lt;5.5 once serum HCO₃⁻ low</td><td>Often &lt;5.5</td><td>Usually &lt;5.5 if kidneys intact</td></tr><tr><td>Urine anion gap</td><td>Often positive</td><td>Often positive or variable</td><td>Often positive</td><td>Often negative</td></tr><tr><td>Stone risk</td><td>High: alkaline urine, hypocitraturia</td><td>Less prominent</td><td>Not typical</td><td>Not typical</td></tr><tr><td>Classic ICU triggers</td><td>Amphotericin B, autoimmune disease, obstruction</td><td>Acetazolamide, topiramate, tenofovir, ifosfamide</td><td>Diabetes/CKD + ACEi/ARB/spironolactone/heparin/trimethoprim</td><td>Diarrhea, ileostomy, fistula, drains</td></tr></tbody></table>
+    </section>
+
+    <section class="section" id="calculator">
+      <h2>4. Bedside acid–base and urine-index calculator</h2>
+      <p class="lead">Enter values, then click “Interpret.” Blank fields are allowed, but more complete data produces a better interpretation.</p>
+      <div class="calculator">
+        <div class="form-grid">
+          <div><label for="na">Na⁺ mmol/L</label><input id="na" type="number" step="0.1" value="140"></div><div><label for="cl">Cl⁻ mmol/L</label><input id="cl" type="number" step="0.1" value="112"></div><div><label for="hco3">HCO₃⁻ mmol/L</label><input id="hco3" type="number" step="0.1" value="14"></div><div><label for="alb">Albumin g/dL</label><input id="alb" type="number" step="0.1" value="2.4"></div>
+          <div><label for="paco2">PaCO₂ mmHg</label><input id="paco2" type="number" step="0.1" value="29"></div><div><label for="k">K⁺ mmol/L</label><input id="k" type="number" step="0.1" value="5.9"></div><div><label for="una">Urine Na⁺ mmol/L</label><input id="una" type="number" step="0.1" value="35"></div><div><label for="uk">Urine K⁺ mmol/L</label><input id="uk" type="number" step="0.1" value="18"></div>
+          <div><label for="ucl">Urine Cl⁻ mmol/L</label><input id="ucl" type="number" step="0.1" value="25"></div><div><label for="uph">Urine pH</label><input id="uph" type="number" step="0.1" value="5.2"></div><div><label for="uosm">Measured urine Osm</label><input id="uosm" type="number" step="1" placeholder="optional"></div><div><label for="uurea">Urine urea mg/dL</label><input id="uurea" type="number" step="1" placeholder="optional"></div><div><label for="ugluc">Urine glucose mg/dL</label><input id="ugluc" type="number" step="1" placeholder="optional"></div>
+        </div>
+        <div class="hero-actions"><button type="button" onclick="window.interpret()">Interpret</button><button type="button" class="ghost" onclick="window.loadScenario('distal')">Load distal RTA</button><button type="button" class="ghost" onclick="window.loadScenario('proximal')">Load proximal RTA</button><button type="button" class="ghost" onclick="window.loadScenario('type4')">Load type 4 RTA</button><button type="button" class="ghost" onclick="window.loadScenario('diarrhea')">Load diarrhea mimic</button></div>
+        <div id="calcResult" class="result"><strong>Result will appear here.</strong><div class="interpretation">Use this as a cognitive forcing function, not a substitute for clinical judgment.</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="cases">
+      <h2>5. Interactive ICU cases</h2>
+      <p class="lead">Choose the best answer. Feedback appears immediately.</p>
+      <div class="tabs"><button type="button" class="tab active" onclick="window.showCase(event,0)">Case 1</button><button type="button" class="tab" onclick="window.showCase(event,1)">Case 2</button><button type="button" class="tab" onclick="window.showCase(event,2)">Case 3</button></div>
+      <div class="case-card active"><div class="card"><h3>Case 1: septic shock recovery</h3><p>58-year-old with septic shock received 6 L normal saline. Lactate cleared. pH 7.31, HCO₃⁻ 16, AG corrected 10, K⁺ 3.7, urine pH 5.1, UAG −24.</p><p><b>Most likely explanation?</b></p><div class="option-grid"><div class="option" onclick="window.answer(this,false,'Urine indices show intact ammonium excretion; this is not classic RTA.')">Distal RTA</div><div class="option" onclick="window.answer(this,false,'Type 4 usually has hyperkalemia and impaired ammonium excretion.')">Type 4 RTA</div><div class="option" onclick="window.answer(this,true,'Correct. Hyperchloremic acidosis after chloride loading with negative UAG suggests preserved renal response.')">Saline-associated NAGMA</div><div class="option" onclick="window.answer(this,false,'Ketoacidosis recovery can do this, but the provided history points to chloride loading.')">DKA recovery</div></div><p class="feedback"></p></div></div>
+      <div class="case-card"><div class="card"><h3>Case 2: transplant recipient</h3><p>Kidney transplant patient on tacrolimus. pH 7.29, HCO₃⁻ 17, corrected AG 11, K⁺ 6.2, urine pH 5.3, UAG +18.</p><p><b>Most likely RTA subtype?</b></p><div class="option-grid"><div class="option" onclick="window.answer(this,false,'Distal type 1 is usually hypokalemic with alkaline urine.')">Type 1 distal</div><div class="option" onclick="window.answer(this,false,'Proximal type 2 is commonly hypokalemic and often part of Fanconi syndrome.')">Type 2 proximal</div><div class="option" onclick="window.answer(this,true,'Correct. Hyperkalemic NAGMA with tacrolimus exposure fits type 4 physiology.')">Type 4 hyperkalemic</div><div class="option" onclick="window.answer(this,false,'GI bicarbonate loss usually produces high NH4Cl excretion and negative UAG.')">GI bicarbonate loss</div></div><p class="feedback"></p></div></div>
+      <div class="case-card"><div class="card"><h3>Case 3: severe hypokalemia</h3><p>36-year-old woman with Sjögren’s syndrome. pH 7.25, HCO₃⁻ 12, corrected AG 9, K⁺ 2.4, urine pH 6.7, positive UAG, nephrocalcinosis on prior imaging.</p><p><b>Best immediate teaching point?</b></p><div class="option-grid"><div class="option" onclick="window.answer(this,true,'Correct. Alkali is needed, but potassium correction is urgent because bicarbonate can worsen hypokalemia.')">Replete K⁺ aggressively before/with alkali</div><div class="option" onclick="window.answer(this,false,'This is not a high-gap process from the supplied data.')">Give fomepizole empirically</div><div class="option" onclick="window.answer(this,false,'Loop diuretics can worsen potassium losses and are not the primary treatment.')">Start high-dose furosemide</div><div class="option" onclick="window.answer(this,false,'Fluid choice matters, but the dominant immediate risk is severe hypokalemia.')">Normal saline bolus is definitive</div></div><p class="feedback"></p></div></div>
+    </section>
+
+    <section class="section" id="management"><h2>6. ICU management framework</h2><div class="grid two"><div class="card"><h3>Immediate priorities</h3><p><span class="badge red">ECG + K⁺ risk</span><span class="badge amber">pH severity</span><span class="badge blue">Ventilatory compensation</span></p><p>Stabilize severe hyperkalemia first. In severe hypokalemia, replete potassium before giving large bicarbonate doses. Check magnesium.</p></div><div class="card"><h3>Remove the driver</h3><p>Stop or substitute offenders when possible: amphotericin B, acetazolamide/topiramate, ACEi/ARB, MR antagonists, heparin, trimethoprim, NSAIDs, calcineurin inhibitors.</p></div><div class="card"><h3>Alkali therapy</h3><p>Use sodium bicarbonate or potassium citrate depending on potassium status and stone risk. Proximal RTA may require higher doses than distal RTA because bicarbonate is wasted.</p></div><div class="card"><h3>Type 4-specific moves</h3><p>Reduce potassium intake/load, stop K⁺-raising drugs, use loop/thiazide diuretics if volume status allows, consider fludrocortisone in selected hypoaldosterone states, and use potassium binders when appropriate.</p></div></div><div class="pearl warnbox">Bicarbonate is not benign: sodium load, volume expansion, CO₂ generation, lower ionized calcium, and potassium shifts can matter in ventilated or shock patients.</div></section>
+
+    <section class="section" id="pitfalls"><h2>7. Pitfalls and cognitive forcing functions</h2><div class="accordion-item open"><div class="accordion-title" onclick="window.toggleAcc(this)">Pitfall 1: Calling every NAGMA “RTA” <span>＋</span></div><div class="accordion-body">NAGMA is a pattern, not a diagnosis. Always check GI bicarbonate loss, chloride-rich fluids, renal failure, drugs, and recovery from organic acidosis.</div></div><div class="accordion-item"><div class="accordion-title" onclick="window.toggleAcc(this)">Pitfall 2: Over-trusting urine pH <span>＋</span></div><div class="accordion-body">Urine pH is altered by UTI with urease-producing organisms, low urine sodium delivery, volume depletion, bicarbonaturia, and sample handling. It must be interpreted with serum pH/HCO₃⁻ and K⁺.</div></div><div class="accordion-item"><div class="accordion-title" onclick="window.toggleAcc(this)">Pitfall 3: Misusing urine anion gap <span>＋</span></div><div class="accordion-body">UAG is a surrogate for urinary NH₄⁺ only when NH₄⁺ is primarily excreted with chloride. Ketoacids, hippurate from toluene, penicillin anions, or advanced kidney dysfunction may confound it. Consider urine osmolal gap where available.</div></div><div class="accordion-item"><div class="accordion-title" onclick="window.toggleAcc(this)">Pitfall 4: Missing mixed acid–base disease <span>＋</span></div><div class="accordion-body">Hypoalbuminemia can mask a high anion gap. Delta-gap reasoning and albumin correction are essential in sepsis, liver disease, burns, malnutrition, and post-operative critical illness.</div></div><div class="accordion-item"><div class="accordion-title" onclick="window.toggleAcc(this)">Pitfall 5: Worsening hypokalemia with alkali <span>＋</span></div><div class="accordion-body">In distal/proximal RTA with severe hypokalemia, alkali therapy can move potassium intracellularly and increase urinary potassium losses. Replace K⁺ early and repeatedly monitor.</div></div></section>
+
+    <section class="section" id="flashcards"><h2>8. Rapid review flashcards</h2><p class="lead">Click the card to flip. Use Next to cycle.</p><div class="flashcard" id="flashcard" onclick="window.flipCard()">What is the first branch point after confirming NAGMA?<small>Click to reveal</small></div><div class="hero-actions"><button type="button" onclick="window.nextCard()">Next card</button><button type="button" class="ghost" onclick="window.flipCard()">Flip</button></div></section>
+
+    <section class="section" id="tests"><h2>9. Built-in self-tests</h2><p class="lead">These checks run automatically on load and can be rerun after edits.</p><button type="button" onclick="window.runSelfTests()">Run self-tests</button><div id="testOutput" class="test-panel">Tests have not run yet.</div></section>
+    <p class="footer-note">Educational material for clinician training. Apply to patient care only with full clinical context, local protocols, and specialist input when appropriate.</p>
+  </main>
+
+  <div class="modal" id="modal" onclick="if(event.target.id==='modal') window.closeModal()"><div class="modal-content"><div class="modal-header"><h2 id="modalTitle">Title</h2><button type="button" class="close" onclick="window.closeModal()">Close</button></div><p id="modalText" class="lead"></p></div></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const cards = [
+        ['What is the first branch point after confirming NAGMA?', 'Serum potassium: hypokalemic NAGMA suggests distal/proximal RTA or GI loss; hyperkalemic NAGMA suggests type 4, CKD/AKI, hypoaldosteronism, or drugs.'],
+        ['Why can distal RTA cause stones?', 'Alkaline urine plus hypocitraturia favors calcium phosphate precipitation and nephrocalcinosis.'],
+        ['Why can type 4 RTA have urine pH <5.5?', 'The dominant defect is low ammonium generation/excretion from hyperkalemia and aldosterone problems, not necessarily inability to lower urine pH.'],
+        ['What does a negative urine anion gap usually imply?', 'High urinary NH₄Cl excretion, meaning the kidney is responding appropriately to acidosis; think GI bicarbonate loss or chloride load.'],
+        ['What is the bicarbonate trap in severe hypokalemic RTA?', 'Alkali therapy can worsen hypokalemia, so potassium replacement must be early and aggressive.']
+      ];
+      let cardIndex = 0;
+      let revealed = false;
+
+      function val(id) {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        const x = parseFloat(el.value);
+        return Number.isFinite(x) ? x : null;
+      }
+
+      function setValue(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
+      }
+
+      function synthesize(k, uph, una, uk, ucl) {
+        let uag = null;
+        if (una !== null && uk !== null && ucl !== null) uag = una + uk - ucl;
+        if (k !== null && k >= 5.3 && (uag === null || uag >= 0)) return 'Type 4 RTA physiology is the leading RTA pattern, especially with diabetes, CKD, transplant drugs, heparin, ACEi/ARB, NSAIDs, trimethoprim, or MR antagonists.';
+        if (k !== null && k <= 3.4 && uph !== null && uph > 5.5 && (uag === null || uag >= 0)) return 'Distal type 1 RTA pattern: hypokalemic NAGMA, inappropriately alkaline urine, impaired NH₄⁺ excretion.';
+        if (k !== null && k <= 3.4 && uph !== null && uph <= 5.5 && (uag === null || uag >= 0)) return 'Proximal type 2 RTA or recovering distal physiology may fit; look for Fanconi markers and drug causes.';
+        if (uag !== null && uag < -10) return 'Renal ammonium response appears preserved; prioritize GI bicarbonate loss, chloride loading, or resolving organic acidosis.';
+        return 'Indeterminate. Confirm pH, corrected AG, kidney function, drug exposure, urine sodium adequacy, and consider direct urine NH₄⁺/urine osmolal gap.';
+      }
+
+      function interpret() {
+        const na = val('na'), cl = val('cl'), hco3 = val('hco3'), alb = val('alb'), paco2 = val('paco2'), k = val('k');
+        const una = val('una'), uk = val('uk'), ucl = val('ucl'), uph = val('uph'), uosm = val('uosm'), uurea = val('uurea'), ugluc = val('ugluc');
+        const lines = [];
+        let headline = '';
+
+        if (na !== null && cl !== null && hco3 !== null) {
+          const ag = na - cl - hco3;
+          const corr = alb !== null ? ag + 2.5 * (4 - alb) : ag;
+          headline += `AG ${ag.toFixed(1)} mmol/L` + (alb !== null ? `; albumin-corrected AG ${corr.toFixed(1)} mmol/L. ` : '. ');
+          lines.push(corr <= 12 ? 'Pattern supports normal-anion-gap / hyperchloremic metabolic acidosis if pH confirms metabolic acidosis.' : 'Corrected anion gap is elevated: look for mixed high-gap acidosis before labeling RTA.');
+        }
+
+        if (hco3 !== null && paco2 !== null) {
+          const expected = 1.5 * hco3 + 8;
+          if (paco2 < expected - 2) lines.push(`PaCO₂ ${paco2} is lower than Winter expected ${expected.toFixed(1)} ±2: concurrent respiratory alkalosis likely.`);
+          else if (paco2 > expected + 2) lines.push(`PaCO₂ ${paco2} is higher than Winter expected ${expected.toFixed(1)} ±2: concurrent respiratory acidosis or inadequate ventilation.`);
+          else lines.push(`PaCO₂ fits expected compensation by Winter’s formula (${expected.toFixed(1)} ±2).`);
+        }
+
+        if (una !== null && uk !== null && ucl !== null) {
+          const uag = una + uk - ucl;
+          headline += `UAG ${uag.toFixed(1)} mmol/L. `;
+          if (uag < -10) lines.push('Negative UAG suggests appropriate NH₄Cl excretion; consider diarrhea/GI bicarbonate loss or chloride load rather than RTA.');
+          else if (uag > 0) lines.push('Positive UAG suggests impaired urinary NH₄⁺ excretion, supporting renal acidification defect if confounders are absent.');
+          else lines.push('Borderline UAG: interpret cautiously and consider urine osmolal gap/direct NH₄⁺ if available.');
+        }
+
+        if (uosm !== null && una !== null && uk !== null && uurea !== null && ugluc !== null) {
+          const calcOsm = 2 * (una + uk) + uurea / 2.8 + ugluc / 18;
+          const uog = uosm - calcOsm;
+          headline += `UOG ${uog.toFixed(0)} mOsm/kg. `;
+          if (uog > 150) lines.push('High urine osmolal gap suggests substantial urinary ammonium excretion; renal response may be intact.');
+          else if (uog < 75) lines.push('Low urine osmolal gap suggests low urinary ammonium excretion; RTA/type 4 physiology becomes more plausible.');
+          else lines.push('Intermediate urine osmolal gap: integrate with urine pH, potassium, kidney function, and clinical context.');
+        }
+
+        if (k !== null) {
+          if (k >= 5.3) lines.push('Hyperkalemia points toward type 4 RTA, CKD/AKI, hypoaldosteronism, adrenal insufficiency, or K⁺-raising drugs. Treat dangerous hyperkalemia first.');
+          else if (k <= 3.4) lines.push('Hypokalemia points toward distal/proximal RTA or GI loss. Replace K⁺ early; alkali can worsen hypokalemia.');
+          else lines.push('Normal potassium does not exclude RTA, but it weakens classic subtype pattern recognition.');
+        }
+
+        if (uph !== null) {
+          if (uph > 5.5) lines.push('Urine pH >5.5 during systemic acidosis supports distal acidification failure, but check UTI, volume status, and bicarbonaturia.');
+          else lines.push('Urine pH ≤5.5 suggests distal H⁺ secretion can occur; type 4 RTA or extrarenal loss may still be present.');
+        }
+
+        const result = document.getElementById('calcResult');
+        result.innerHTML = `<strong>${headline || 'Insufficient data.'}</strong><div class="interpretation"><b>Pattern synthesis:</b> ${synthesize(k, uph, una, uk, ucl)}<br><br>${lines.map(x => '• ' + x).join('<br>')}</div>`;
+      }
+
+      function loadScenario(type) {
+        const scenarios = {
+          distal: {na:140, cl:116, hco3:12, alb:3.2, paco2:26, k:2.7, una:42, uk:28, ucl:38, uph:6.7, uosm:'', uurea:'', ugluc:''},
+          proximal: {na:138, cl:114, hco3:15, alb:3.6, paco2:30, k:3.0, una:55, uk:25, ucl:60, uph:5.2, uosm:'', uurea:'', ugluc:''},
+          type4: {na:139, cl:112, hco3:16, alb:3.0, paco2:32, k:6.1, una:32, uk:14, ucl:28, uph:5.1, uosm:'', uurea:'', ugluc:''},
+          diarrhea: {na:140, cl:113, hco3:15, alb:3.1, paco2:30, k:3.2, una:18, uk:22, ucl:68, uph:5.0, uosm:'', uurea:'', ugluc:''}
+        };
+        const scenario = scenarios[type];
+        if (!scenario) throw new Error(`Unknown scenario: ${type}`);
+        Object.entries(scenario).forEach(([id, value]) => setValue(id, value));
+        interpret();
+      }
+
+      function showTab(eventOrElement, id) {
+        const trigger = eventOrElement && eventOrElement.target ? eventOrElement.target : eventOrElement;
+        const panel = document.getElementById(id);
+        if (!panel) throw new Error(`No tab panel found for id: ${id}`);
+        document.querySelectorAll('#subtypes .tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('#subtypes .tab-panel').forEach(p => p.classList.remove('active'));
+        if (trigger && trigger.classList) trigger.classList.add('active');
+        panel.classList.add('active');
+      }
+
+      function showCase(eventOrElement, idx) {
+        const trigger = eventOrElement && eventOrElement.target ? eventOrElement.target : eventOrElement;
+        const cards = document.querySelectorAll('.case-card');
+        if (!cards[idx]) throw new Error(`No case card found at index: ${idx}`);
+        document.querySelectorAll('#cases .tab').forEach(t => t.classList.remove('active'));
+        cards.forEach(c => c.classList.remove('active'));
+        if (trigger && trigger.classList) trigger.classList.add('active');
+        cards[idx].classList.add('active');
+      }
+
+      function answer(el, correct, text) {
+        const parent = el.closest('.card');
+        parent.querySelectorAll('.option').forEach(o => o.classList.remove('correct', 'wrong'));
+        el.classList.add(correct ? 'correct' : 'wrong');
+        parent.querySelector('.feedback').innerHTML = `<b>${correct ? 'Correct.' : 'Not quite.'}</b> ${text}`;
+      }
+
+      function toggleAcc(title) {
+        title.parentElement.classList.toggle('open');
+      }
+
+      function openModal(title, text) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = text;
+        document.getElementById('modal').classList.add('show');
+      }
+
+      function closeModal() {
+        document.getElementById('modal').classList.remove('show');
+      }
+
+      function renderCard() {
+        const fc = document.getElementById('flashcard');
+        fc.innerHTML = (revealed ? cards[cardIndex][1] : cards[cardIndex][0]) + `<small>${revealed ? 'Click to hide' : 'Click to reveal'}</small>`;
+      }
+
+      function flipCard() {
+        revealed = !revealed;
+        renderCard();
+      }
+
+      function nextCard() {
+        cardIndex = (cardIndex + 1) % cards.length;
+        revealed = false;
+        renderCard();
+      }
+
+      function assert(condition, message) {
+        if (!condition) throw new Error(message);
+      }
+
+      function runSelfTests() {
+        const output = document.getElementById('testOutput');
+        const results = [];
+        const test = (name, fn) => {
+          try {
+            fn();
+            results.push(`PASS ${name}`);
+          } catch (err) {
+            results.push(`FAIL ${name}: ${err.message}`);
+          }
+        };
+
+        test('global handlers are defined for inline HTML events', () => {
+          ['showTab', 'showCase', 'interpret', 'loadScenario', 'answer', 'toggleAcc', 'openModal', 'closeModal', 'flipCard', 'nextCard'].forEach(name => {
+            assert(typeof window[name] === 'function', `${name} is not exposed on window`);
+          });
+        });
+
+        test('subtype tabs switch active panel without ReferenceError', () => {
+          const type4Button = Array.from(document.querySelectorAll('#subtypes .tab')).find(btn => btn.textContent.includes('Type 4'));
+          window.showTab(type4Button, 'type4');
+          assert(document.getElementById('type4').classList.contains('active'), 'type4 panel did not become active');
+          assert(!document.getElementById('type1').classList.contains('active'), 'type1 panel remained active');
+          const type1Button = Array.from(document.querySelectorAll('#subtypes .tab')).find(btn => btn.textContent.includes('Type 1'));
+          window.showTab(type1Button, 'type1');
+        });
+
+        test('calculator scenarios produce expected synthesis text', () => {
+          window.loadScenario('type4');
+          assert(document.getElementById('calcResult').textContent.includes('Type 4 RTA physiology'), 'type4 scenario did not synthesize type 4 RTA');
+          window.loadScenario('distal');
+          assert(document.getElementById('calcResult').textContent.includes('Distal type 1 RTA pattern'), 'distal scenario did not synthesize distal RTA');
+          window.loadScenario('diarrhea');
+          assert(document.getElementById('calcResult').textContent.includes('Renal ammonium response appears preserved'), 'diarrhea mimic did not synthesize preserved renal response');
+        });
+
+        test('case tabs switch active case', () => {
+          const case2Button = document.querySelectorAll('#cases .tab')[1];
+          window.showCase(case2Button, 1);
+          assert(document.querySelectorAll('.case-card')[1].classList.contains('active'), 'case 2 did not become active');
+          const case1Button = document.querySelectorAll('#cases .tab')[0];
+          window.showCase(case1Button, 0);
+        });
+
+        test('modal opens and closes', () => {
+          window.openModal('Test title', 'Test text');
+          assert(document.getElementById('modal').classList.contains('show'), 'modal did not open');
+          window.closeModal();
+          assert(!document.getElementById('modal').classList.contains('show'), 'modal did not close');
+        });
+
+        test('accordion toggles open state', () => {
+          const title = document.querySelector('.accordion-title');
+          const item = title.parentElement;
+          const before = item.classList.contains('open');
+          window.toggleAcc(title);
+          assert(item.classList.contains('open') !== before, 'accordion did not toggle');
+          window.toggleAcc(title);
+        });
+
+        test('flashcards flip and advance', () => {
+          const before = document.getElementById('flashcard').textContent;
+          window.flipCard();
+          const afterFlip = document.getElementById('flashcard').textContent;
+          assert(afterFlip !== before, 'flashcard did not flip');
+          window.nextCard();
+          const afterNext = document.getElementById('flashcard').textContent;
+          assert(afterNext !== afterFlip, 'flashcard did not advance');
+        });
+
+        const failed = results.some(line => line.startsWith('FAIL'));
+        output.textContent = results.join('\n') + `\n\n${failed ? 'Some tests failed.' : 'All tests passed.'}`;
+        return !failed;
+      }
+
+      window.val = val;
+      window.synthesize = synthesize;
+      window.interpret = interpret;
+      window.loadScenario = loadScenario;
+      window.showTab = showTab;
+      window.showCase = showCase;
+      window.answer = answer;
+      window.toggleAcc = toggleAcc;
+      window.openModal = openModal;
+      window.closeModal = closeModal;
+      window.flipCard = flipCard;
+      window.nextCard = nextCard;
+      window.runSelfTests = runSelfTests;
+
+      document.addEventListener('DOMContentLoaded', () => {
+        interpret();
+        renderCard();
+        runSelfTests();
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
+      });
+    }());
+  </script>
+</body>
+</html>

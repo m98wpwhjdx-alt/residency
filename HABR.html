@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hepatic Arterial Buffer Response</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --border: #e5e7eb;
+      --danger: #dc2626;
+      --success: #16a34a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      color: white;
+      padding: 36px 28px;
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(37, 99, 235, 0.22);
+      margin-bottom: 28px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.1;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 1.1rem;
+      opacity: 0.95;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.45rem;
+      color: #111827;
+    }
+
+    .lead {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .highlight {
+      background: var(--accent-soft);
+      border-left: 5px solid var(--accent);
+      padding: 16px 18px;
+      border-radius: 14px;
+      font-weight: 600;
+      margin: 18px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      overflow: hidden;
+      border-radius: 14px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    .step {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+      font-weight: 600;
+      min-height: 92px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .arrow {
+      text-align: center;
+      font-size: 1.6rem;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .clinical-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .clinical-box {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      background: #f9fafb;
+    }
+
+    .clinical-box h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      color: #111827;
+    }
+
+    .exam {
+      background: #ecfdf5;
+      border-left: 5px solid var(--success);
+      padding: 18px;
+      border-radius: 14px;
+      font-weight: 700;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #eef2ff;
+      color: #3730a3;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 28px;
+    }
+
+    @media (max-width: 760px) {
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        transform: rotate(90deg);
+      }
+
+      .clinical-grid {
+        grid-template-columns: 1fr;
+      }
+
+      header, .card {
+        border-radius: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Hepatic Arterial Buffer Response</h1>
+      <p>A concise physiology explainer for anaesthesia, ICU, surgery, and exam revision.</p>
+    </header>
+
+    <section class="card">
+      <span class="tag">Core concept</span>
+      <h2>What is the hepatic buffer?</h2>
+      <p class="lead">
+        The hepatic buffer usually refers to the <strong>hepatic arterial buffer response</strong>.
+      </p>
+      <p>
+        The liver has a dual blood supply: the <strong>portal vein</strong> and the
+        <strong>hepatic artery</strong>. When portal venous flow falls, hepatic arterial
+        flow increases to partially maintain total liver blood flow.
+      </p>
+      <div class="highlight">
+        ↓ Portal venous flow → ↑ Hepatic arterial flow
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Dual blood supply of the liver</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Approximate flow contribution</th>
+            <th>Main role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Portal vein</strong></td>
+            <td>70–75%</td>
+            <td>Nutrient-rich splanchnic venous blood</td>
+          </tr>
+          <tr>
+            <td><strong>Hepatic artery</strong></td>
+            <td>25–30%</td>
+            <td>Oxygen-rich arterial blood</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Mechanism: adenosine washout hypothesis</h2>
+      <p>
+        The classic mechanism is based on <strong>adenosine</strong>, which is produced
+        around the portal triads near hepatic arterial resistance vessels. Normal portal
+        flow washes adenosine away. When portal flow decreases, less adenosine is washed
+        out, so local adenosine concentration rises and causes hepatic arterial
+        vasodilation.
+      </p>
+
+      <div class="flow" aria-label="Hepatic arterial buffer response flow diagram">
+        <div class="step">↓ Portal venous flow</div>
+        <div class="arrow">→</div>
+        <div class="step">↓ Adenosine washout</div>
+        <div class="arrow">→</div>
+        <div class="step">↑ Hepatic arterial dilatation and flow</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Why it matters</h2>
+      <p>
+        The liver cannot directly control portal venous inflow because portal flow depends
+        on splanchnic venous drainage. The hepatic artery therefore compensates locally to
+        help preserve liver perfusion.
+      </p>
+      <p>
+        This response is <strong>semi-reciprocal</strong>: if portal flow falls, hepatic
+        arterial flow rises; if portal flow rises, hepatic arterial flow may fall.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Clinical relevance</h2>
+      <div class="clinical-grid">
+        <div class="clinical-box">
+          <h3>Hypovolaemia / shock</h3>
+          <p>
+            Reduced portal flow may trigger hepatic arterial compensation, but the reserve
+            is limited during severe low-flow states.
+          </p>
+        </div>
+        <div class="clinical-box">
+          <h3>Liver transplantation</h3>
+          <p>
+            Excessive portal inflow can reduce hepatic arterial flow through the buffer
+            response, contributing to hepatic artery hypoperfusion.
+          </p>
+        </div>
+        <div class="clinical-box">
+          <h3>Cirrhosis / portal hypertension</h3>
+          <p>
+            The response may be altered, and microcirculatory perfusion can remain poor
+            despite apparent changes in large-vessel flow.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>One-line exam answer</h2>
+      <div class="exam">
+        The hepatic arterial buffer response is the compensatory increase in hepatic
+        arterial blood flow when portal venous flow decreases, mainly mediated by reduced
+        washout and accumulation of adenosine around hepatic arterial resistance vessels.
+      </div>
+    </section>
+
+    <footer>
+      Hepatic Buffer Response | Physiology Revision
+    </footer>
+  </main>
+</body>
+</html>
