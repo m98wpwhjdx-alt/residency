@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flow and FiO₂ Relationship in ICU</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --accent: #0f766e;
+      --accent-light: #ccfbf1;
+      --danger: #b91c1c;
+      --warning: #b45309;
+      --blue: #1d4ed8;
+      --border: #d9e2ec;
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 17px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f766e, #164e63);
+      color: white;
+      padding: 34px 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      line-height: 1.2;
+    }
+
+    header p {
+      margin: 12px auto 0;
+      max-width: 820px;
+      font-size: 1.05rem;
+      opacity: 0.95;
+    }
+
+    main {
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 22px 14px 50px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      margin: 18px 0;
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      font-size: 1.45rem;
+      color: #0f4f4a;
+      margin: 0 0 14px;
+      border-left: 6px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    h3 {
+      margin-top: 18px;
+      color: #164e63;
+    }
+
+    .key-box {
+      background: var(--accent-light);
+      border-left: 6px solid var(--accent);
+      padding: 16px 18px;
+      border-radius: 12px;
+      margin: 14px 0;
+      font-weight: 600;
+    }
+
+    .warning-box {
+      background: #fff7ed;
+      border-left: 6px solid var(--warning);
+      padding: 16px 18px;
+      border-radius: 12px;
+      margin: 14px 0;
+    }
+
+    .danger-box {
+      background: #fef2f2;
+      border-left: 6px solid var(--danger);
+      padding: 16px 18px;
+      border-radius: 12px;
+      margin: 14px 0;
+    }
+
+    .blue-box {
+      background: #eff6ff;
+      border-left: 6px solid var(--blue);
+      padding: 16px 18px;
+      border-radius: 12px;
+      margin: 14px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      overflow: hidden;
+      border-radius: 12px;
+      font-size: 0.98rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #ecfeff;
+      color: #0f4f4a;
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .mini-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .mini-card strong {
+      color: #0f4f4a;
+    }
+
+    .formula {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #111827;
+      color: #ecfeff;
+      padding: 16px;
+      border-radius: 12px;
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #075985;
+      margin-bottom: 8px;
+    }
+
+    ul {
+      padding-left: 22px;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 26px;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        font-size: 16px;
+      }
+
+      header h1 {
+        font-size: 1.55rem;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Flow and FiO₂ Relationship in ICU</h1>
+    <p>
+      A bedside guide to understand how oxygen flow, patient inspiratory demand, and device type determine the actual FiO₂ delivered to the patient.
+    </p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1. Core Concept</h2>
+      <p>
+        <strong>FiO₂</strong> means the fraction of inspired oxygen reaching the patient. Room air has an FiO₂ of approximately <strong>21%</strong>, while pure oxygen source gas is close to <strong>100%</strong>.
+      </p>
+
+      <div class="key-box">
+        The actual FiO₂ depends on how much oxygen mixes with room air before reaching the alveoli.
+      </div>
+
+      <p>
+        The most important determinant is whether the device flow can meet the patient’s <strong>peak inspiratory flow demand</strong>.
+      </p>
+
+      <div class="grid">
+        <div class="mini-card">
+          <span class="tag">Low device flow</span><br />
+          <strong>Device flow &lt; patient inspiratory demand</strong>
+          <p>Room air gets entrained. Actual FiO₂ becomes variable and often lower than expected.</p>
+        </div>
+
+        <div class="mini-card">
+          <span class="tag">High device flow</span><br />
+          <strong>Device flow ≥ patient inspiratory demand</strong>
+          <p>Room air entrainment decreases. Delivered FiO₂ becomes more stable and predictable.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Low-Flow Oxygen Systems</h2>
+      <p>
+        Examples include <strong>nasal cannula</strong> and <strong>simple face mask</strong>. These devices do not meet the complete inspiratory flow demand of most ICU patients, so room air is entrained.
+      </p>
+
+      <h3>Nasal Cannula Approximation</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Oxygen Flow</th>
+            <th>Approximate FiO₂</th>
+            <th>Bedside Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1 L/min</td>
+            <td>24%</td>
+            <td>Mild oxygen supplementation</td>
+          </tr>
+          <tr>
+            <td>2 L/min</td>
+            <td>28%</td>
+            <td>Common starting flow</td>
+          </tr>
+          <tr>
+            <td>3 L/min</td>
+            <td>32%</td>
+            <td>Moderate support</td>
+          </tr>
+          <tr>
+            <td>4 L/min</td>
+            <td>36%</td>
+            <td>Higher low-flow support</td>
+          </tr>
+          <tr>
+            <td>5 L/min</td>
+            <td>40%</td>
+            <td>Near upper comfortable limit</td>
+          </tr>
+          <tr>
+            <td>6 L/min</td>
+            <td>44%</td>
+            <td>Maximum usual nasal cannula range</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning-box">
+        <strong>Clinical caution:</strong> This “+4% per L/min” rule is only approximate. FiO₂ falls if the patient has tachypnea, high tidal volume, high inspiratory flow, or mouth breathing.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Face Mask and Non-Rebreather Mask</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Device</th>
+            <th>Usual Flow</th>
+            <th>Approximate FiO₂</th>
+            <th>Important Point</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Simple Face Mask</td>
+            <td>5–10 L/min</td>
+            <td>35–60%</td>
+            <td>Do not use below 5 L/min because of risk of CO₂ rebreathing.</td>
+          </tr>
+          <tr>
+            <td>Non-Rebreather Mask</td>
+            <td>10–15 L/min</td>
+            <td>60–90% or higher</td>
+            <td>Reservoir bag should remain inflated during inspiration.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="danger-box">
+        If the non-rebreather reservoir bag collapses during inspiration, oxygen flow is inadequate for the patient’s inspiratory demand.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4. Venturi Mask</h2>
+      <p>
+        A Venturi mask is a <strong>fixed-performance oxygen device</strong>. Here, the selected FiO₂ is controlled by the Venturi adaptor, not simply by increasing oxygen flow.
+      </p>
+
+      <div class="blue-box">
+        In a Venturi system, oxygen flow must be set according to the manufacturer’s instruction for that FiO₂ adaptor.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>FiO₂</td>
+            <td>Fixed by the Venturi adaptor, e.g., 24%, 28%, 35%, 40%, 60%.</td>
+          </tr>
+          <tr>
+            <td>Flow</td>
+            <td>Must be sufficient to drive the Venturi effect and total gas delivery.</td>
+          </tr>
+          <tr>
+            <td>Best use</td>
+            <td>COPD or patients at risk of hypercapnic respiratory failure where controlled oxygen is needed.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        In many COPD patients at risk of CO₂ retention, the usual SpO₂ target is <strong>88–92%</strong>, unless otherwise clinically indicated.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>5. HFNC / HFNO</h2>
+      <p>
+        High-flow nasal cannula allows independent adjustment of:
+      </p>
+
+      <ul>
+        <li><strong>Flow:</strong> commonly up to 60 L/min in adults.</li>
+        <li><strong>FiO₂:</strong> usually 21% to 100%.</li>
+        <li><strong>Temperature and humidification:</strong> improves comfort and secretion clearance.</li>
+      </ul>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Knob</th>
+            <th>Main Effect</th>
+            <th>Clinical Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Increase FiO₂</td>
+            <td>Increases oxygen concentration</td>
+            <td>Useful when SpO₂/PaO₂ is low despite adequate flow.</td>
+          </tr>
+          <tr>
+            <td>Increase Flow</td>
+            <td>Reduces room air entrainment, washes out dead space, gives small PEEP effect</td>
+            <td>Useful when patient has high inspiratory demand or work of breathing.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="key-box">
+        In HFNC, FiO₂ controls oxygen concentration, while flow controls how reliably that FiO₂ is delivered and how much respiratory support is provided.
+      </div>
+
+      <h3>Example</h3>
+      <p>
+        A patient on HFNC <strong>FiO₂ 0.60, flow 30 L/min</strong> may still desaturate if their inspiratory demand is 60–80 L/min. Increasing flow to <strong>50–60 L/min</strong> may improve oxygenation even without increasing FiO₂ because less room air is entrained.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>6. Mechanical Ventilator</h2>
+      <p>
+        On an invasive ventilator, FiO₂ is set directly by the oxygen-air blender. For example: <strong>FiO₂ 0.30, 0.50, 0.80, or 1.0</strong>.
+      </p>
+
+      <p>
+        Inspiratory flow mainly affects respiratory mechanics, not oxygen concentration.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Ventilator Setting</th>
+            <th>Main Effect</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>FiO₂</td>
+            <td>Directly changes inspired oxygen concentration.</td>
+          </tr>
+          <tr>
+            <td>Inspiratory Flow</td>
+            <td>Affects inspiratory time, I:E ratio, peak pressure, patient comfort, and synchrony.</td>
+          </tr>
+          <tr>
+            <td>PEEP</td>
+            <td>Improves alveolar recruitment and oxygenation, especially in shunt physiology.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="blue-box">
+        On a ventilator, increasing inspiratory flow does not usually increase FiO₂. FiO₂ is adjusted separately.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>7. Bedside Summary Table</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>System</th>
+            <th>Flow–FiO₂ Relationship</th>
+            <th>Practical ICU Point</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Nasal Cannula</td>
+            <td>Higher flow gives higher approximate FiO₂, but variable.</td>
+            <td>Good for stable patients with low oxygen requirement.</td>
+          </tr>
+          <tr>
+            <td>Simple Mask</td>
+            <td>Higher flow increases FiO₂, but still variable.</td>
+            <td>Minimum 5 L/min to reduce CO₂ rebreathing.</td>
+          </tr>
+          <tr>
+            <td>Non-Rebreather</td>
+            <td>Needs high flow to maintain reservoir and high FiO₂.</td>
+            <td>Use 10–15 L/min; bag should not collapse.</td>
+          </tr>
+          <tr>
+            <td>Venturi Mask</td>
+            <td>FiO₂ fixed by adaptor; flow must be set correctly.</td>
+            <td>Best for controlled oxygen therapy, especially COPD.</td>
+          </tr>
+          <tr>
+            <td>HFNC</td>
+            <td>FiO₂ and flow are independently set.</td>
+            <td>Increase flow for high inspiratory demand/work of breathing.</td>
+          </tr>
+          <tr>
+            <td>Mechanical Ventilator</td>
+            <td>FiO₂ is set directly; flow affects mechanics.</td>
+            <td>For oxygenation, adjust FiO₂ and PEEP, not inspiratory flow alone.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>8. One-Line ICU Takeaway</h2>
+      <div class="formula">
+        Low-flow oxygen: Flow partly determines FiO₂.<br />
+        HFNC: Flow and FiO₂ are separate but clinically linked.<br />
+        Ventilator: FiO₂ is directly set; flow mainly affects mechanics.
+      </div>
+    </section>
+
+    <p class="footer">
+      Educational ICU note | Use clinical targets such as SpO₂, ABG, work of breathing, and underlying pathology to titrate oxygen support.
+    </p>
+  </main>
+</body>
+</html>
