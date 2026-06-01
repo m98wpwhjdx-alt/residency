@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Transcranial Doppler (TCD) Overview</title>
+  <style>
+    :root {
+      --primary: #004080;
+      --accent: #0f766e;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #243041;
+      --muted: #667085;
+      --border: #d0d7de;
+      --warning-bg: #fff7ed;
+      --warning-border: #fed7aa;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 28px auto;
+      padding: 0 16px;
+    }
+
+    .container {
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+
+    header {
+      padding: 28px 30px;
+      background: linear-gradient(135deg, #003b73, #0f766e);
+      color: white;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      line-height: 1.2;
+    }
+
+    header p {
+      margin: 0;
+      opacity: 0.95;
+      font-size: 1rem;
+    }
+
+    main {
+      padding: 28px 30px 34px;
+    }
+
+    h2 {
+      color: var(--primary);
+      margin-top: 28px;
+      margin-bottom: 10px;
+      font-size: 1.35rem;
+      border-bottom: 2px solid #e6eef8;
+      padding-bottom: 6px;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    ul {
+      margin: 10px 0 10px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    strong {
+      color: #111827;
+    }
+
+    .note {
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      border-left: 5px solid #f97316;
+      padding: 14px 16px;
+      border-radius: 10px;
+      color: #7c2d12;
+      margin: 18px 0;
+      font-size: 0.95rem;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-top: 16px;
+    }
+
+    figure {
+      margin: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    figure img {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #eef2f7;
+    }
+
+    figcaption {
+      font-size: 0.92rem;
+      color: var(--muted);
+      padding: 10px 12px 12px;
+      background: #fafafa;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .clinical-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .clinical-box h3 {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 1.05rem;
+    }
+
+    footer {
+      padding: 18px 30px;
+      background: #f8fafc;
+      border-top: 1px solid #e5e7eb;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (min-width: 760px) {
+      .image-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      header h1 {
+        font-size: 2.35rem;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .page {
+        margin: 0;
+        max-width: none;
+      }
+
+      .container {
+        box-shadow: none;
+        border: none;
+      }
+
+      header {
+        background: white;
+        color: var(--primary);
+        border-bottom: 2px solid var(--primary);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="container">
+      <header>
+        <h1>Transcranial Doppler (TCD)</h1>
+        <p>Extracted and formatted from the shared NYSORA Anesthesia Assistant App HTML snippet.</p>
+      </header>
+
+      <main>
+        <section>
+          <h2>Overview</h2>
+          <p>
+            <strong>Transcranial Doppler (TCD)</strong> is a non-invasive ultrasound technique used to measure
+            cerebral blood flow velocity in the major basal cerebral arteries, most commonly the middle cerebral artery.
+            It provides real-time information about cerebral hemodynamics and autoregulation.
+          </p>
+        </section>
+
+        <section>
+          <h2>Key Points</h2>
+          <ul>
+            <li>
+              <strong>Purpose:</strong> Measures blood flow velocity in cerebral arteries to assess cerebral blood flow
+              and cerebral autoregulation.
+            </li>
+            <li>
+              <strong>How it works:</strong> Uses a low-frequency ultrasound probe, typically around 2 MHz, placed over
+              thin cranial acoustic windows such as the temporal, orbital, and suboccipital windows.
+            </li>
+            <li>
+              <strong>Commonly assessed vessels:</strong> Middle cerebral artery, anterior cerebral artery, posterior
+              cerebral artery, basilar artery, and vertebral arteries.
+            </li>
+            <li>
+              <strong>Clinical uses:</strong> Intraoperative cerebral blood flow monitoring, emboli detection,
+              vasospasm assessment after subarachnoid hemorrhage, autoregulation assessment, and adjunctive testing in
+              brain death confirmation.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Clinical Interpretation Snapshot</h2>
+          <div class="clinical-box">
+            <h3>What TCD actually measures</h3>
+            <p>
+              TCD measures <strong>flow velocity</strong>, not absolute cerebral blood flow. Velocity changes are
+              interpreted as a surrogate for cerebral perfusion only when vessel diameter is assumed to remain relatively
+              constant.
+            </p>
+          </div>
+
+          <div class="clinical-box">
+            <h3>Common waveform components</h3>
+            <ul>
+              <li><strong>Peak systolic velocity:</strong> highest velocity during systole.</li>
+              <li><strong>End-diastolic velocity:</strong> velocity at the end of diastole.</li>
+              <li><strong>Mean flow velocity:</strong> average velocity across the cardiac cycle.</li>
+              <li><strong>Pulsatility index:</strong> reflects downstream resistance and intracranial compliance trends.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h2>Visual Support</h2>
+
+          <div class="note">
+            The first image URL was present in the supplied snippet. The remaining image URLs were described in the text
+            as plausible placeholder NYSORA paths; they may need replacement with verified image URLs if they do not load.
+          </div>
+
+          <div class="image-grid">
+            <figure>
+              <img
+                src="https://nysoralms.com/wp-content/uploads/2024/09/Ch-Aortic-dissection-flowchart-1.png"
+                alt="EEG and NIRS monitoring flowchart"
+              />
+              <figcaption>
+                Figure 1: EEG and NIRS monitoring in cerebral perfusion assessment.
+              </figcaption>
+            </figure>
+
+            <figure>
+              <img
+                src="https://nysoralms.com/wp-content/uploads/2024/09/Ultrasound-probe-temporal-window.jpg"
+                alt="Ultrasound probe placement at the temporal window"
+              />
+              <figcaption>
+                Figure 2: Ultrasound probe placement at the temporal window for TCD.
+              </figcaption>
+            </figure>
+
+            <figure>
+              <img
+                src="https://nysoralms.com/wp-content/uploads/2024/09/Transcranial-Doppler-ultrasound-image.jpg"
+                alt="Transcranial Doppler ultrasound waveform"
+              />
+              <figcaption>
+                Figure 3: Typical Transcranial Doppler ultrasound waveform from the middle cerebral artery.
+              </figcaption>
+            </figure>
+
+            <figure>
+              <img
+                src="https://nysoralms.com/wp-content/uploads/2024/09/Cerebral-blood-flow-monitoring-setup.jpg"
+                alt="Cerebral blood flow monitoring setup"
+              />
+              <figcaption>
+                Figure 4: Cerebral blood flow monitoring setup in the operating room.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        Source text shared from NYSORA's Anesthesia Assistant App.
+        App link:
+        <a href="https://nysora.onelink.me/D0FL/zz4vs9ok" target="_blank" rel="noopener noreferrer">
+          Open NYSORA Anesthesia Assistant App
+        </a>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
