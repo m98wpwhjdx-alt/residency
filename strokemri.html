@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acute Stroke MRI Protocol | DWI–ADC–FLAIR & Reperfusion Triage</title>
+  <style>
+    :root{
+      --bg:#071018;--panel:#101b27;--panel2:#122232;--text:#eef7ff;--muted:#a8b9c9;--line:#26384a;
+      --cyan:#49d3ff;--green:#3be39b;--amber:#ffd166;--red:#ff5c7a;--violet:#a78bfa;--blue:#5aa7ff;
+      --shadow: 0 22px 80px rgba(0,0,0,.38); --radius:24px;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:
+      radial-gradient(circle at 10% -10%, rgba(73,211,255,.22), transparent 33%),
+      radial-gradient(circle at 85% 5%, rgba(167,139,250,.18), transparent 29%),
+      linear-gradient(180deg,#060b12 0%,#071018 40%,#09131e 100%);color:var(--text);}
+    a{color:#7dd9ff;text-decoration:none} a:hover{text-decoration:underline}
+    .wrap{max-width:1220px;margin:auto;padding:28px 20px 72px}.hero{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.09);background:linear-gradient(135deg,rgba(16,27,39,.95),rgba(9,20,32,.86));border-radius:32px;box-shadow:var(--shadow);padding:42px;}
+    .hero:before{content:"";position:absolute;inset:-1px;background:radial-gradient(circle at 77% 20%,rgba(73,211,255,.18),transparent 28%);pointer-events:none}.badge{display:inline-flex;gap:10px;align-items:center;border:1px solid rgba(73,211,255,.25);background:rgba(73,211,255,.09);color:#c8f5ff;border-radius:999px;padding:9px 14px;font-weight:700;font-size:13px;letter-spacing:.2px}
+    h1{font-size:clamp(34px,5vw,64px);line-height:.96;margin:20px 0 14px;letter-spacing:-2px}.subtitle{font-size:clamp(16px,2vw,21px);max-width:880px;color:var(--muted);line-height:1.6}.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;margin-top:30px;align-items:stretch}.glass{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);border-radius:24px;padding:22px;backdrop-filter: blur(12px)}
+    .statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.stat{padding:16px;border-radius:18px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08)}.stat b{font-size:28px;display:block}.stat span{color:var(--muted);font-size:13px;line-height:1.35}
+    nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(18px);background:rgba(7,16,24,.74);border-bottom:1px solid rgba(255,255,255,.08)}.navin{max-width:1220px;margin:auto;display:flex;gap:10px;overflow:auto;padding:12px 20px}.navin a{white-space:nowrap;color:#dff8ff;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);padding:9px 13px;border-radius:999px;font-weight:650;font-size:13px;text-decoration:none}
+    section{margin-top:34px}.card{border:1px solid rgba(255,255,255,.09);background:linear-gradient(180deg,rgba(16,27,39,.92),rgba(13,24,36,.88));border-radius:var(--radius);box-shadow:0 10px 38px rgba(0,0,0,.23);padding:28px}.section-title{display:flex;align-items:center;gap:13px;margin:0 0 16px}.dot{width:13px;height:13px;border-radius:50%;box-shadow:0 0 24px currentColor}.cyan{color:var(--cyan)}.green{color:var(--green)}.amber{color:var(--amber)}.red{color:var(--red)}.violet{color:var(--violet)}
+    h2{font-size:30px;margin:0;letter-spacing:-.7px}h3{font-size:20px;margin:18px 0 10px}.muted{color:var(--muted)}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.mini{padding:18px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.045)}
+    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:18px;border:1px solid rgba(255,255,255,.09)}th,td{padding:15px 14px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top;text-align:left}th{background:rgba(73,211,255,.10);color:#dff8ff;font-size:13px;text-transform:uppercase;letter-spacing:.6px}td{color:#d9e7f2}tr:last-child td{border-bottom:0}.pill{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}.p-green{background:rgba(59,227,155,.13);color:#aaf8d7}.p-red{background:rgba(255,92,122,.14);color:#ffc2cf}.p-amber{background:rgba(255,209,102,.13);color:#ffe4a3}.p-cyan{background:rgba(73,211,255,.13);color:#b9f0ff}.p-violet{background:rgba(167,139,250,.15);color:#ddd1ff}
+    .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:stretch}.step{position:relative;padding:18px;border-radius:20px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);min-height:150px}.step .num{font-weight:900;color:var(--cyan);font-size:28px}.step p{color:var(--muted);line-height:1.45}.step:not(:last-child):after{content:"→";position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:#6fdcff;font-weight:900;font-size:26px;z-index:2}
+    .brain-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}.scan{border-radius:18px;background:#050608;border:1px solid rgba(255,255,255,.1);padding:12px;text-align:center}.scan svg{width:100%;height:auto;max-height:260px}.scan-title{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px;font-weight:800}.tag{font-size:11px;border:1px solid rgba(255,255,255,.12);padding:4px 7px;border-radius:999px;color:var(--muted)}
+    .timeline{position:relative;padding-left:24px}.timeline:before{content:"";position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:linear-gradient(var(--green),var(--amber),var(--red))}.titem{position:relative;margin:0 0 18px;padding:16px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}.titem:before{content:"";position:absolute;left:-24px;top:21px;width:14px;height:14px;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px var(--cyan)}
+    .calc{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}.calc label{display:block;color:var(--muted);font-weight:700;font-size:13px;margin-bottom:6px}.calc input{width:100%;background:#07111b;color:var(--text);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:12px;font-size:15px}.btn{border:0;border-radius:14px;padding:13px 16px;font-weight:900;color:#051017;background:linear-gradient(135deg,#49d3ff,#3be39b);cursor:pointer}.result{margin-top:16px;padding:16px;border-radius:18px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);font-weight:750}
+    .image-card img{width:100%;border-radius:18px;border:1px solid rgba(255,255,255,.13);background:#000}.caption{color:var(--muted);font-size:13px;line-height:1.45;margin-top:10px}.warning{border-left:5px solid var(--amber);background:rgba(255,209,102,.08);padding:16px;border-radius:16px;color:#fff4d4}.danger{border-left:5px solid var(--red);background:rgba(255,92,122,.08);padding:16px;border-radius:16px;color:#ffd7df}
+    .footer{margin-top:34px;color:var(--muted);font-size:13px;line-height:1.6}.small{font-size:13px}.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:rgba(255,255,255,.08);padding:2px 6px;border-radius:7px;color:#dff8ff}
+    @media(max-width:900px){.hero{padding:28px}.hero-grid,.grid2,.grid3,.grid4{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.step:not(:last-child):after{content:"↓";right:50%;top:auto;bottom:-20px;transform:translateX(50%)}.brain-row{grid-template-columns:1fr}.calc{grid-template-columns:1fr}.statgrid{grid-template-columns:1fr}h1{letter-spacing:-1px}}
+    @media print{body{background:white;color:#111}.card,.hero{box-shadow:none;background:white;color:#111}.navin,nav,.btn,.calc{display:none}a{color:#0645ad}.muted,td{color:#222}.mini,.step,.scan{background:white;color:#111;border-color:#ddd}}
+  </style>
+</head>
+<body>
+  <nav><div class="navin">
+    <a href="#triage">Triage logic</a><a href="#protocol">MRI protocol</a><a href="#sequences">DWI–ADC–FLAIR</a><a href="#window">Window assessment</a><a href="#thrombectomy">Thrombectomy</a><a href="#anaesthesia">Anaesthesia checklist</a><a href="#images">Images & credits</a>
+  </div></nav>
+  <main class="wrap">
+    <header class="hero">
+      <span class="badge">Acute ischemic stroke MRI triage • ICU / Anaesthesia / Neuro-IR</span>
+      <h1>MRI Protocol for Thrombolysis Window & Mechanical Thrombectomy Triage</h1>
+      <p class="subtitle">A practical bedside-to-scanner guide for deciding whether a patient should be escalated for IV thrombolysis, neurointervention mechanical thrombectomy, or further perfusion-based selection.</p>
+      <div class="hero-grid">
+        <div class="glass">
+          <h3>Core question</h3>
+          <p class="muted">Do not ask only <b>“How many hours?”</b> Ask: <b>how much brain is dead, how much is salvageable, and is there a removable clot?</b></p>
+          <div class="warning"><b>Minimum imaging logic:</b><br/>DWI + ADC = infarct core<br/>DWI vs FLAIR = biological age<br/>CTA/MRA = target clot<br/>Perfusion = salvageable penumbra</div>
+        </div>
+        <div class="statgrid">
+          <div class="stat"><b>4.5 h</b><span>Standard IV thrombolysis window from last known well in eligible patients.</span></div>
+          <div class="stat"><b>DWI+</b><span>Very early infarct signal; compare with ADC to prove restriction.</span></div>
+          <div class="stat"><b>FLAIR−</b><span>With DWI+ supports hyperacute biological window in selected unknown-onset stroke.</span></div>
+          <div class="stat"><b>6–24 h</b><span>Extended thrombectomy selection when LVO + favorable tissue imaging.</span></div>
+        </div>
+      </div>
+    </header>
+
+    <section id="triage" class="card">
+      <div class="section-title"><span class="dot cyan"></span><h2>Acute Stroke MRI Triage: Four Questions</h2></div>
+      <div class="flow">
+        <div class="step"><div class="num">01</div><h3>Is there bleed?</h3><p>NCCT or GRE/SWI excludes hemorrhage before thrombolysis.</p></div>
+        <div class="step"><div class="num">02</div><h3>Is there infarct core?</h3><p>DWI bright + ADC dark = true restricted diffusion, i.e., acute infarct core.</p></div>
+        <div class="step"><div class="num">03</div><h3>Is it early?</h3><p>DWI-positive and FLAIR-negative suggests DWI–FLAIR mismatch and supports recent onset.</p></div>
+        <div class="step"><div class="num">04</div><h3>Is there LVO?</h3><p>CTA/MRA identifies ICA terminus, M1, proximal M2, basilar, or other target occlusion.</p></div>
+        <div class="step"><div class="num">05</div><h3>Is brain salvageable?</h3><p>Perfusion imaging estimates mismatch: small core with large penumbra favors reperfusion.</p></div>
+      </div>
+    </section>
+
+    <section id="protocol" class="card">
+      <div class="section-title"><span class="dot green"></span><h2>Emergency MRI Stroke Protocol</h2></div>
+      <div class="grid2">
+        <div>
+          <table>
+            <thead><tr><th>Sequence</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><b>DWI</b></td><td>Detect acute ischemic infarct core early.</td></tr>
+              <tr><td><b>ADC map</b></td><td>Confirm true restricted diffusion; avoid mistaking T2 shine-through for acute infarct.</td></tr>
+              <tr><td><b>T2/FLAIR</b></td><td>Estimate lesion age and assess DWI–FLAIR mismatch.</td></tr>
+              <tr><td><b>GRE/SWI</b></td><td>Detect hemorrhage, microbleeds, and susceptibility vessel sign.</td></tr>
+              <tr><td><b>TOF-MRA / contrast MRA</b></td><td>Detect large vessel occlusion and target clot.</td></tr>
+              <tr><td><b>MR perfusion</b></td><td>Core–penumbra mismatch, especially in late/unknown window.</td></tr>
+              <tr><td><b>T1/T2</b></td><td>Anatomy, old infarct, mimics, mass lesion when time permits.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mini">
+          <h3>When MRI is especially useful</h3>
+          <p class="muted">MRI is especially helpful in wake-up stroke, unknown-onset stroke, posterior circulation stroke, stroke mimics, and biological-window assessment using DWI–FLAIR mismatch.</p>
+          <div class="danger"><b>Operational rule:</b> If CT/CTA/CTP is faster and available, do not delay reperfusion just to obtain MRI in an otherwise clear stroke pathway.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sequences" class="card">
+      <div class="section-title"><span class="dot violet"></span><h2>Side-by-side Review: DWI, ADC, T2/FLAIR</h2></div>
+      <table>
+        <thead><tr><th>Sequence</th><th>What it shows</th><th>Acute ischemic stroke finding</th><th>Time behavior</th><th>Clinical use</th></tr></thead>
+        <tbody>
+          <tr><td><b>DWI</b></td><td>Restricted water diffusion from cytotoxic edema.</td><td><span class="pill p-cyan">Bright / hyperintense</span></td><td>Positive very early, often within minutes.</td><td>Best rapid sequence for acute infarct core.</td></tr>
+          <tr><td><b>ADC</b></td><td>Quantitative diffusion coefficient map.</td><td><span class="pill p-red">Dark / hypointense</span> if true restriction.</td><td>Falls early; may pseudonormalize later.</td><td>Confirms DWI brightness is true restriction, not T2 shine-through.</td></tr>
+          <tr><td><b>T2/FLAIR</b></td><td>Water/edema signal with CSF suppressed.</td><td>Initially normal; later becomes bright.</td><td>Lags behind DWI by hours.</td><td>Biological age estimate; DWI+ / FLAIR− suggests hyperacute stroke.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="brain-row">
+        <div class="scan">
+          <div class="scan-title">DWI <span class="tag">acute core = bright</span></div>
+          <svg viewBox="0 0 300 230" role="img" aria-label="Illustrative DWI scan with bright lesion">
+            <defs><radialGradient id="g1" cx="50%" cy="50%"><stop offset="0" stop-color="#bcc8d2"/><stop offset=".7" stop-color="#5d6873"/><stop offset="1" stop-color="#1d252d"/></radialGradient><filter id="blur"><feGaussianBlur stdDeviation="5"/></filter></defs>
+            <rect width="300" height="230" fill="#050608" rx="14"/><ellipse cx="150" cy="112" rx="92" ry="82" fill="url(#g1)"/><path d="M150 30 C139 76 139 150 150 196 C161 150 161 76 150 30" stroke="#111820" stroke-width="8" fill="none" opacity=".8"/><circle cx="98" cy="102" r="29" fill="#fff" filter="url(#blur)" opacity=".95"/><circle cx="108" cy="92" r="14" fill="#fff" opacity=".9"/><text x="150" y="215" fill="#dff8ff" text-anchor="middle" font-size="16" font-weight="700">DWI: lesion is bright</text>
+          </svg>
+        </div>
+        <div class="scan">
+          <div class="scan-title">ADC <span class="tag">true restriction = dark</span></div>
+          <svg viewBox="0 0 300 230" role="img" aria-label="Illustrative ADC scan with dark lesion">
+            <defs><radialGradient id="g2" cx="50%" cy="50%"><stop offset="0" stop-color="#b8c0c5"/><stop offset=".75" stop-color="#68737b"/><stop offset="1" stop-color="#222a31"/></radialGradient></defs>
+            <rect width="300" height="230" fill="#050608" rx="14"/><ellipse cx="150" cy="112" rx="92" ry="82" fill="url(#g2)"/><path d="M150 30 C139 76 139 150 150 196 C161 150 161 76 150 30" stroke="#111820" stroke-width="8" fill="none" opacity=".8"/><circle cx="98" cy="102" r="30" fill="#050608" opacity=".9"/><circle cx="108" cy="92" r="13" fill="#050608" opacity=".92"/><text x="150" y="215" fill="#dff8ff" text-anchor="middle" font-size="16" font-weight="700">ADC: same lesion is dark</text>
+          </svg>
+        </div>
+        <div class="scan">
+          <div class="scan-title">FLAIR <span class="tag">early = negative</span></div>
+          <svg viewBox="0 0 300 230" role="img" aria-label="Illustrative FLAIR scan without visible lesion">
+            <defs><radialGradient id="g3" cx="50%" cy="50%"><stop offset="0" stop-color="#9ba8b4"/><stop offset=".65" stop-color="#515c67"/><stop offset="1" stop-color="#18202a"/></radialGradient></defs>
+            <rect width="300" height="230" fill="#050608" rx="14"/><ellipse cx="150" cy="112" rx="92" ry="82" fill="url(#g3)"/><path d="M150 30 C139 76 139 150 150 196 C161 150 161 76 150 30" stroke="#080c10" stroke-width="10" fill="none" opacity=".9"/><circle cx="98" cy="102" r="31" fill="#8795a0" opacity=".08"/><text x="150" y="215" fill="#dff8ff" text-anchor="middle" font-size="16" font-weight="700">FLAIR: no clear signal yet</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="grid3" style="margin-top:18px">
+        <div class="mini"><span class="pill p-green">True acute infarct</span><h3>DWI bright + ADC dark</h3><p class="muted">Acute restricted diffusion. Treat this region as infarct core, not penumbra.</p></div>
+        <div class="mini"><span class="pill p-amber">T2 shine-through</span><h3>DWI bright + ADC normal/high</h3><p class="muted">DWI hyperintensity may reflect high T2 signal rather than restricted diffusion.</p></div>
+        <div class="mini"><span class="pill p-violet">Biological age</span><h3>DWI+ / FLAIR−</h3><p class="muted">DWI–FLAIR mismatch suggests recent ischemia and can support unknown-onset thrombolysis selection.</p></div>
+      </div>
+    </section>
+
+    <section id="window" class="card">
+      <div class="section-title"><span class="dot amber"></span><h2>How to Assess the Thrombolysis Window</h2></div>
+      <div class="grid2">
+        <div class="timeline">
+          <div class="titem"><h3>1. Establish last known well</h3><p class="muted">Use the last time the patient was definitely neurologically normal, not the time symptoms were discovered.</p></div>
+          <div class="titem"><h3>2. Read DWI + ADC first</h3><p class="muted">DWI bright with ADC dark confirms acute infarct core. Large core increases hemorrhagic transformation risk.</p></div>
+          <div class="titem"><h3>3. Compare DWI with FLAIR</h3><p class="muted">DWI-positive / FLAIR-negative = mismatch. In selected wake-up or unknown-onset stroke, this supports thrombolysis discussion.</p></div>
+          <div class="titem"><h3>4. Screen contraindications</h3><p class="muted">Check BP, glucose, anticoagulation, recent surgery/bleeding, platelets/coagulation when clinically relevant, and local stroke protocol.</p></div>
+        </div>
+        <div class="mini">
+          <h3>Window calculator</h3>
+          <p class="muted small">For known-onset stroke only. Use local time. This calculator does not decide eligibility; it only estimates elapsed time from last known well.</p>
+          <div class="calc">
+            <div><label>Last known well</label><input id="lkw" type="datetime-local" /></div>
+            <div><label>Current / assessment time</label><input id="nowt" type="datetime-local" /></div>
+            <button class="btn" onclick="calcWindow()">Calculate</button>
+          </div>
+          <div id="calcResult" class="result">Enter times to classify: ≤4.5 h, 4.5–6 h, 6–24 h, or >24 h.</div>
+          <h3>Wake-up / unknown-onset logic</h3>
+          <p class="muted">If clock time excludes the patient but MRI shows DWI lesion smaller than one-third MCA territory and no visible corresponding FLAIR change, urgent stroke-team discussion for MRI-guided thrombolysis is appropriate in selected eligible patients.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="thrombectomy" class="card">
+      <div class="section-title"><span class="dot red"></span><h2>Mechanical Thrombectomy Decision Matrix</h2></div>
+      <table>
+        <thead><tr><th>Imaging pattern</th><th>Meaning</th><th>IV thrombolysis?</th><th>Mechanical thrombectomy?</th></tr></thead>
+        <tbody>
+          <tr><td>CT no bleed + within 4.5 h</td><td>Standard acute ischemic stroke pathway.</td><td><span class="pill p-green">Consider if eligible</span></td><td>If LVO present.</td></tr>
+          <tr><td>DWI bright + ADC dark + FLAIR negative</td><td>Acute infarct with DWI–FLAIR mismatch.</td><td><span class="pill p-green">Consider in selected unknown/wake-up stroke</span></td><td>If LVO present.</td></tr>
+          <tr><td>DWI bright + ADC dark + FLAIR positive</td><td>Established infarct, likely older.</td><td><span class="pill p-amber">Usually not by mismatch logic alone</span></td><td>Possible if LVO + favorable perfusion/core.</td></tr>
+          <tr><td>Large DWI core</td><td>Large established infarct.</td><td><span class="pill p-red">High risk</span></td><td>Protocol and expert-dependent.</td></tr>
+          <tr><td>Small DWI core + severe deficit + LVO</td><td>Clinical-core mismatch.</td><td>Do not delay eligible IV lytic.</td><td><span class="pill p-green">High-priority neuro-IR activation</span></td></tr>
+          <tr><td>No DWI lesion but disabling deficit</td><td>Very early stroke, posterior stroke, TIA, or mimic.</td><td>Clinical decision.</td><td>CTA/MRA remains essential.</td></tr>
+        </tbody>
+      </table>
+      <div class="grid2" style="margin-top:20px">
+        <div class="mini"><h3>0–6 hours</h3><p class="muted">If disabling deficit and LVO is suspected: exclude hemorrhage, perform CTA/MRA, and activate neurointervention when core is not large.</p></div>
+        <div class="mini"><h3>6–24 hours</h3><p class="muted">Use tissue-based selection: LVO + small core + salvageable penumbra / clinical-imaging mismatch. DAWN/DEFUSE-3 style selection guides late-window EVT.</p></div>
+      </div>
+    </section>
+
+    <section id="anaesthesia" class="card">
+      <div class="section-title"><span class="dot cyan"></span><h2>Anaesthesia / Critical Care Checklist Before MRI or IR Suite</h2></div>
+      <div class="grid3">
+        <div class="mini"><h3>Stroke pathway data</h3><p class="muted">Last known well, discovery time, NIHSS/deficit, GCS, glucose, BP, anticoagulant/antiplatelet history, recent surgery/bleeding, platelets/INR/aPTT when relevant.</p></div>
+        <div class="mini"><h3>Physiology</h3><p class="muted">Maintain oxygenation, avoid hypotension, treat glucose extremes, assess aspiration risk and need for intubation before transport/scanner.</p></div>
+        <div class="mini"><h3>BP memory</h3><p class="muted">For IV thrombolysis: usually &lt;185/110 mmHg before treatment and &lt;180/105 mmHg after. For thrombectomy: avoid hypotension; preserve collateral perfusion.</p></div>
+      </div>
+      <div class="warning" style="margin-top:18px"><b>IR posting rule:</b> IV thrombolysis and mechanical thrombectomy are not mutually exclusive. If eligible for IV lytic and LVO is present, the lytic should not delay transfer for thrombectomy.</div>
+    </section>
+
+    <section id="images" class="card">
+      <div class="section-title"><span class="dot green"></span><h2>Representative MRI Images & Credits</h2></div>
+      <div class="grid2">
+        <div class="image-card">
+          <img src="https://www.frontiersin.org/files/Articles/78345/xml-images/fneur-05-00035-g002.webp" alt="DWI-FLAIR mismatch and no mismatch example from Frontiers in Neurology" />
+          <div class="caption"><b>DWI–FLAIR mismatch and no mismatch.</b> Source: Rimmele & Thomalla, Frontiers in Neurology, 2014. <a href="https://www.frontiersin.org/journals/neurology/articles/10.3389/fneur.2014.00035/full" target="_blank" rel="noopener">View article</a>. Used here as an externally linked educational reference with credit.</div>
+        </div>
+        <div class="image-card">
+          <div class="scan" style="min-height:100%">
+            <div class="scan-title">Generated teaching diagram <span class="tag">not a patient scan</span></div>
+            <svg viewBox="0 0 700 410" role="img" aria-label="Generated teaching diagram of DWI ADC FLAIR interpretation">
+              <rect width="700" height="410" rx="22" fill="#050608"/>
+              <text x="350" y="35" fill="#dff8ff" font-size="22" text-anchor="middle" font-weight="800">DWI–ADC–FLAIR Stroke Window Logic</text>
+              <g transform="translate(40,70)"><text x="80" y="0" fill="#49d3ff" font-size="18" font-weight="800" text-anchor="middle">DWI</text><ellipse cx="80" cy="110" rx="70" ry="82" fill="#596572"/><circle cx="50" cy="88" r="28" fill="#fff" opacity=".92"/><text x="80" y="220" fill="#eef7ff" font-size="15" text-anchor="middle">Bright</text></g>
+              <g transform="translate(260,70)"><text x="80" y="0" fill="#ff5c7a" font-size="18" font-weight="800" text-anchor="middle">ADC</text><ellipse cx="80" cy="110" rx="70" ry="82" fill="#66727c"/><circle cx="50" cy="88" r="28" fill="#050608" opacity=".92"/><text x="80" y="220" fill="#eef7ff" font-size="15" text-anchor="middle">Dark</text></g>
+              <g transform="translate(480,70)"><text x="80" y="0" fill="#ffd166" font-size="18" font-weight="800" text-anchor="middle">FLAIR</text><ellipse cx="80" cy="110" rx="70" ry="82" fill="#52606b"/><circle cx="50" cy="88" r="28" fill="#52606b" opacity=".25"/><text x="80" y="220" fill="#eef7ff" font-size="15" text-anchor="middle">Negative early</text></g>
+              <text x="350" y="350" fill="#3be39b" font-size="22" text-anchor="middle" font-weight="900">DWI+ + ADC− + FLAIR− = Acute core, likely early biological window</text>
+            </svg>
+          </div>
+          <div class="caption">This page also includes generated schematic images to avoid relying only on external copyrighted scans.</div>
+        </div>
+      </div>
+      <h3>Reference links used for the content</h3>
+      <ul class="muted">
+        <li>AHA/ASA 2019 acute ischemic stroke guideline update slide deck: alteplase, wake-up MRI mismatch, thrombectomy timing, BP recommendations.</li>
+        <li>WAKE-UP trial: MRI-guided thrombolysis for unknown-onset stroke using DWI–FLAIR mismatch.</li>
+        <li>Radiology references on DWI/ADC in acute ischemic stroke and T2 shine-through.</li>
+      </ul>
+    </section>
+
+    <footer class="footer">
+      <p><b>Clinical safety note:</b> This is an educational triage aid for anaesthesia/critical care workflow. Final reperfusion decisions must follow local institutional stroke protocol and be made with neurology, radiology, and neurointervention teams.</p>
+    </footer>
+  </main>
+
+  <script>
+    function pad(n){return String(n).padStart(2,'0')}
+    function setDefaultTimes(){
+      const now = new Date();
+      const lkw = new Date(now.getTime()-2*60*60*1000);
+      const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      document.getElementById('nowt').value = fmt(now);
+      document.getElementById('lkw').value = fmt(lkw);
+    }
+    function calcWindow(){
+      const a = new Date(document.getElementById('lkw').value);
+      const b = new Date(document.getElementById('nowt').value);
+      const out = document.getElementById('calcResult');
+      if(isNaN(a)||isNaN(b)||b<a){out.innerHTML='Please enter valid times. Assessment time must be after last known well.';return;}
+      const h=(b-a)/36e5; let cls='', msg='';
+      if(h<=4.5){cls='p-green'; msg='≤4.5 hours: standard IV thrombolysis window if eligible; still check CTA/MRA for LVO.';}
+      else if(h<=6){cls='p-amber'; msg='4.5–6 hours: usual IV thrombolysis clock window exceeded, but thrombectomy may be possible if LVO and favorable core.';}
+      else if(h<=24){cls='p-violet'; msg='6–24 hours: extended thrombectomy pathway; needs LVO and favorable perfusion/core mismatch criteria.';}
+      else{cls='p-red'; msg='>24 hours: acute reperfusion usually unlikely, but discuss special cases/posterior circulation per local protocol.';}
+      out.innerHTML = `<span class="pill ${cls}">${h.toFixed(2)} hours elapsed</span><br><br>${msg}`;
+    }
+    setDefaultTimes(); calcWindow();
+  </script>
+</body>
+</html>
